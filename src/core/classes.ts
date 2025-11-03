@@ -31,7 +31,14 @@ export interface A11yClassConfig {
 
 function parseClassList(val: string | null): string[] {
   if (!val) return [];
-  try { if (val.trim().startsWith("[")) return JSON.parse(val); } catch {}
+  if (val.trim().startsWith("[")) {
+    try {
+      const parsed = JSON.parse(val);
+      if (Array.isArray(parsed)) return parsed.filter(Boolean).map(String);
+    } catch {
+      // fall through to whitespace parsing
+    }
+  }
   return val.trim().split(/\s+/).filter(Boolean);
 }
 

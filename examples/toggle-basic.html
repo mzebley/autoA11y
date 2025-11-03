@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>autoA11y – Toggle Example</title>
   <style>
+        body { font-family: system-ui, sans-serif; line-height: 1.5; padding: 2rem; max-width: 40rem; margin: 0 auto; }
     [hidden] { display: none !important; }
     .btn { padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 6px; }
     .a11y-toggled-open { background: #eef; }
@@ -17,14 +18,11 @@
 
   <button class="btn"
     data-autoa11y-toggle="#details"
-    data-autoa11y-trigger-class-open="a11y-toggled-open"
-    data-autoa11y-trigger-class-closed="a11y-toggled-closed"
-    data-autoa11y-target-class-open="panel"
   >
     More details
   </button>
 
-  <div id="details">
+  <div id="details" class="panel">
     <p>This content is revealed when the disclosure is open.</p>
   </div>
 

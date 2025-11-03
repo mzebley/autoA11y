@@ -4,6 +4,21 @@ autoA11y patterns are small, self-contained behaviors that automatically handle 
 
 ---
 
+## v0.1 — Announce (Cross-cutting)
+
+### Description
+
+Shared live region that centralizes screen reader announcements for any pattern that emits `autoa11y:*` events.
+
+### Features
+
+- Singleton polite live region (assertive opt-in via `data-autoa11y-announce="assertive"`)
+- Consumes trigger data attributes for custom messages
+- Generates sensible defaults from accessible names
+- Suppresses duplicate messages and skips redundant focused updates
+
+---
+
 ## v0.1 — Toggle / Disclosure
 
 ### Description

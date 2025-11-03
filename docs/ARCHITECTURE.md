@@ -78,6 +78,8 @@ Every component dispatches consistent lifecycle events:
 - `autoa11y:toggle` — whenever state changes
 - `autoa11y:open` / `autoa11y:close` — for convenience and custom logic
 
+The announce pattern is the canonical listener for these events. Once `registerAnnouncePlugin()` runs, a shared live region responds to hooks like `autoa11y:toggle`, so future patterns (dialogs, accordions, menus) emit events and rely on announce for ARIA live messaging instead of creating their own regions.
+
 ---
 
 ## Pattern Isolation

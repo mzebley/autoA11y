@@ -62,3 +62,9 @@ Internally:
 - `inactive` and `collapsed` resolve to **falsy**.
 
 Result: same behavior, regardless of terminology.
+
+---
+
+## Future Use: Announcements
+
+The announce pattern uses the same notion of "expanded" vs "collapsed" when generating default live messages. As we broaden truthiness mapping (for example, to support localized strings), the announce defaults can tap into the shared table to keep spoken feedback consistent with class/state naming.

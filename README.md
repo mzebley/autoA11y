@@ -130,6 +130,39 @@ Manages focus trap, `aria-modal`, and background `inert` state automatically.
 
 ---
 
+### Announce (cross-cutting)
+
+The announce pattern provides a shared live region for screen reader updates so individual components stay declarative.
+
+Add `data-autoa11y-announce` to any pattern trigger to opt in:
+
+```html
+<button
+  data-autoa11y-toggle="#faq1"
+  data-autoa11y-announce="polite"
+  data-autoa11y-announce-open="FAQ expanded"
+  data-autoa11y-announce-closed="FAQ collapsed">
+  FAQ
+</button>
+```
+
+Behavior:
+
+- Defaults to polite announcements (use `assertive` to override).
+- Skips redundant announcements when focus remains on the control.
+- Falls back to the trigger's accessible name (`aria-label`, `aria-labelledby`, or text content).
+- Automatically listens for events like `autoa11y:toggle`.
+
+Register once on boot:
+
+```ts
+import { registerAnnouncePlugin } from "autoa11y";
+
+registerAnnouncePlugin();
+```
+
+---
+
 ## Attribute Synonyms
 
 autoA11y recognizes several synonyms for open or closed states to improve author ergonomics.
