@@ -52,6 +52,36 @@ data-automagica11y-[element]-[affordance]-[action]
 </div>
 ```
 
+### Focus Examples
+
+```html
+<!-- Initial focus -->
+<button
+  data-automagica11y-focus-initial
+  data-automagica11y-focus-prevent-scroll="false"
+  data-automagica11y-focus-delay="150">
+  Skip to content
+</button>
+
+<!-- Focus map -->
+<div id="focus-map-anchor" tabindex="0"></div>
+
+<div
+  data-automagica11y-focus-map="#navbar a; #player button; main [data-primary]"
+  data-automagica11y-focus-map-scope="document"
+  data-automagica11y-focus-map-anchor="#focus-map-anchor">
+</div>
+```
+
+| Attribute | Description |
+|-----------|-------------|
+| `data-automagica11y-focus-initial` | Focus this element once after hydration. |
+| `data-automagica11y-focus-prevent-scroll` | Optional (`true` default). Pass `"false"` to allow scrolling during the focus call. |
+| `data-automagica11y-focus-delay` | Delay (ms) before applying initial focus. |
+| `data-automagica11y-focus-map` | Semicolon-separated list or JSON array of selectors defining the tab sequence. |
+| `data-automagica11y-focus-map-scope` | `"self"` to scope selectors to the current element, a CSS selector (e.g., `#sidebar`) to target a specific container, or omit to use the entire document. |
+| `data-automagica11y-focus-map-anchor` | CSS selector that determines where the remapped elements sit in the natural tab order (defaults to the scope container). |
+
 ---
 
 ## Grammar Benefits

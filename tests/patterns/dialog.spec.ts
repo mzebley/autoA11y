@@ -39,7 +39,7 @@ describe("dialog pattern", () => {
     expect(dialog.getAttribute("aria-hidden")).toBe("true");
   });
 
-  it("opens on click, traps focus, and dispatches lifecycle events", () => {
+  it("opens on click, traps focus, and dispatches lifecycle events", async () => {
     const trigger = document.getElementById("open-dialog") as HTMLElement;
     const dialog = document.getElementById("dialog") as HTMLElement;
     const closeBtn = document.getElementById("stay") as HTMLElement;
@@ -57,7 +57,7 @@ describe("dialog pattern", () => {
     expect(ready).toHaveBeenCalledTimes(1);
 
     trigger.click();
-    vi.runAllTimers();
+    await Promise.resolve();
 
     expect(trigger.getAttribute("aria-expanded")).toBe("true");
     expect(dialog.hidden).toBe(false);
@@ -76,7 +76,7 @@ describe("dialog pattern", () => {
     vi.useRealTimers();
   });
 
-  it("closes via data-automagica11y-dialog-close and restores focus/background state", () => {
+  it("closes via data-automagica11y-dialog-close and restores focus/background state", async () => {
     const trigger = document.getElementById("open-dialog") as HTMLElement;
     const dialog = document.getElementById("dialog") as HTMLElement;
     const closeBtn = document.getElementById("stay") as HTMLElement;
@@ -85,6 +85,7 @@ describe("dialog pattern", () => {
     vi.useFakeTimers();
     initDialog(trigger);
     trigger.click();
+    await Promise.resolve();
 
     expect(backgroundLink.getAttribute("aria-hidden")).toBe("true");
     expect(backgroundLink.hasAttribute("inert")).toBe(true);
@@ -97,7 +98,7 @@ describe("dialog pattern", () => {
     expect(backgroundLink.hasAttribute("inert")).toBe(false);
 
     // Focus returns to trigger.
-    vi.runAllTimers();
+    await Promise.resolve();
     expect(document.activeElement).toBe(trigger);
     vi.useRealTimers();
   });

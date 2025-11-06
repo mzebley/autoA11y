@@ -153,6 +153,40 @@ If no custom trigger classes are defined, automagicA11y falls back to `automagic
 
 ---
 
+### Focus Utilities
+
+Focus helpers give you fine-grained control over where focus starts and how it progresses through custom interfaces.
+
+#### Initial focus
+
+```html
+<header>
+  <button data-automagica11y-focus-initial data-automagica11y-focus-prevent-scroll="false">
+    Skip to content
+  </button>
+</header>
+```
+
+When the page hydrates, the button receives focus once (without altering the author’s tabindex order). Optional `data-automagica11y-focus-delay="100"` delays focus in milliseconds.
+
+#### Focus map
+
+```html
+<div id="focus-map-anchor" tabindex="0"></div>
+
+<div
+  data-automagica11y-focus-map="#navbar a; #player button; main [data-primary]"
+  data-automagica11y-focus-map-scope="#page-shell"
+  data-automagica11y-focus-map-anchor="#focus-map-anchor">
+</div>
+```
+
+Define an explicit tab order using selectors. Scope the search to a container with `data-automagica11y-focus-map-scope="#page-shell"` (or use `"self"` to limit to the element itself). Use `data-automagica11y-focus-map-anchor` to align the remapped sequence with a specific container’s position in the DOM (defaults to the same element used for scope). The pattern preserves original `tabindex` values, applies sequential indices while the map is active, and restores originals if the map attribute is removed or re-initialised.
+
+Use this to keep floating players, overlays, or portal-based menus in the logical navigation sequence.
+
+---
+
 ### Announce (cross-cutting)
 
 The announce pattern provides a shared live region for screen reader updates so individual components stay declarative.
@@ -330,9 +364,12 @@ Each pattern initializes independently, avoiding collisions while sharing helper
 - [x] Shared class, attribute, and style helpers
 - [x] Registry-based initialization
 
-### v0.3+
+### v0.3
 
-- [ ] Focus management utilities
+- [x] Focus management utilities (`focus-initial`, `focus-map`, reusable traps)
+
+### v0.4+
+
 - [ ] Persist and hash plugins
 - [ ] Animate plugin
 - [ ] Framework wrappers (Angular, React, Svelte)
@@ -348,6 +385,7 @@ Each pattern initializes independently, avoiding collisions while sharing helper
 | [Patterns Roadmap](./docs/patterns.md) | Current and planned interactive patterns (toggle, tooltip, dialog, etc.). |
 | [Plugins](./docs/plugins.md) | Optional future enhancements (persist, animate, hash-sync, announce, inert). |
 | [Attribute Grammar](./docs/attributes.md) | Explains the `data-automagica11y-[element]-[affordance]-[action]` syntax and philosophy. |
+| [Focus Utilities](./src/patterns/focus/README.md) | How to drive first-focus behavior and custom tab order mapping. |
 | [Dialog Pattern](./src/patterns/dialog/README.md) | Deep dive into dialog configuration, focus trapping, and background management. |
 | [Contributing Guide](./docs/CONTRIBUTING.md) | How to build, test, and contribute new patterns or fixes. |
 | [Branding & Voice](./docs/branding.md) | Taglines, tone, and visual direction for the project identity. |

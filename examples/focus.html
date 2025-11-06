@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>automagicA11y – Focus Utilities</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <main>
+    <h1>Focus Utilities</h1>
+    <p>
+      These patterns give you declarative control over initial focus and custom tab order, while keeping native semantics intact.
+    </p>
+
+    <section class="card">
+      <h2>Initial focus</h2>
+      <p>
+        Click “Reset page focus” to see the skip link grab focus immediately after hydration. This works without manually juggling tabindex values.
+      </p>
+
+      <button class="btn" id="reset-focus">Reset page focus</button>
+
+      <div style="margin-top: 1rem;">
+        <button
+          class="btn"
+          data-automagica11y-focus-initial
+          data-automagica11y-focus-prevent-scroll="false">
+          Skip to content
+        </button>
+      </div>
+
+      <pre><code class="language-html">&lt;button
+  data-automagica11y-focus-initial
+  data-automagica11y-focus-prevent-scroll="false">
+  Skip to content
+&lt;/button></code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Focus map</h2>
+      <p>
+        Define an explicit tab sequence using CSS selectors. In the markup below the floating music player is rendered <em>before</em> the nav and CTA, but visually it sits in the top-right corner. The focus map keeps the keyboard order nav → player → CTA even though the DOM order is player → nav → CTA.
+      </p>
+
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+        <button class="btn" id="enable-map">Enable focus map</button>
+        <button class="btn" id="disable-map">Disable focus map</button>
+      </div>
+
+      <div id="focus-map-anchor" tabindex="0" aria-hidden="true"></div>
+
+      <div id="focus-map-demo" style="position:relative; min-height:9rem;">
+        <div class="card" style="position:absolute; top:-0.5rem; right:-0.5rem; width:16rem;">
+          <div class="toolbar" id="player" style="justify-content:space-between; align-items:center;">
+            <span>Mini Player</span>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn" id="play">Play</button>
+              <button class="btn" id="pause">Pause</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="toolbar" style="display:flex; gap: 0.5rem; flex-wrap: wrap;">
+          <a class="btn" href="#" id="nav-home">Home</a>
+          <a class="btn" href="#" id="nav-shop">Shop</a>
+          <a class="btn" href="#" id="nav-about">About</a>
+        </div>
+
+        <div class="panel" data-primary>
+          <p>Primary action area</p>
+          <button class="btn" id="cta">Buy now</button>
+        </div>
+      </div>
+
+      <pre><code class="language-html">&lt;!-- DOM order: player → nav → CTA -->
+&lt;div class="player-card">
+  &lt;button id="play">Play&lt;/button>
+  &lt;button id="pause">Pause&lt;/button>
+&lt;/div>
+
+&lt;nav>
+  &lt;a id="nav-home">Home&lt;/a>
+  &lt;a id="nav-shop">Shop&lt;/a>
+  &lt;a id="nav-about">About&lt;/a>
+&lt;/nav>
+
+&lt;div data-primary>
+  &lt;button id="cta">Buy now&lt;/button>
+&lt;/div>
+
+&lt;!-- Declarative tab map -->
+&lt;div id="focus-map-anchor" tabindex="0">&lt;/div>
+
+&lt;div
+  data-automagica11y-focus-map="#nav-home; #nav-shop; #nav-about; #play; #pause; #cta"
+  data-automagica11y-focus-map-scope="#focus-map-demo"
+  data-automagica11y-focus-map-anchor="#focus-map-anchor">
+&lt;/div></code></pre>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js"></script>
+  <script type="module">
+    import * as automagica11y from "../dist/automagica11y.esm.js";
+
+    const hydrate = (node) => {
+      automagica11y.initNode(node);
+    };
+
+    document.getElementById("reset-focus")?.addEventListener("click", () => {
+      const button = document.querySelector("[data-automagica11y-focus-initial]");
+      if (!button || !button.parentElement) return;
+      const clone = button.cloneNode(true);
+      button.parentElement.replaceChild(clone, button);
+      hydrate(clone);
+    });
+
+    const mapAnchor = document.getElementById("focus-map-anchor");
+    const mapSelectors = "#nav-home; #nav-shop; #nav-about; #play; #pause; #cta";
+
+    const enableMap = () => {
+      if (!mapAnchor) return;
+      mapAnchor.setAttribute("data-automagica11y-focus-map", mapSelectors);
+      mapAnchor.setAttribute("data-automagica11y-focus-map-scope", "#focus-map-demo");
+      mapAnchor.setAttribute("data-automagica11y-focus-map-anchor", "#focus-map-anchor");
+      hydrate(mapAnchor);
+    };
+
+    const disableMap = () => {
+      if (!mapAnchor) return;
+      mapAnchor.removeAttribute("data-automagica11y-focus-map");
+      mapAnchor.removeAttribute("data-automagica11y-focus-map-scope");
+      mapAnchor.removeAttribute("data-automagica11y-focus-map-start");
+      hydrate(mapAnchor);
+    };
+
+    document.getElementById("enable-map")?.addEventListener("click", enableMap);
+    document.getElementById("disable-map")?.addEventListener("click", disableMap);
+
+    // Start with the natural order so the difference is obvious.
+    disableMap();
+  </script>
+</body>
+</html>

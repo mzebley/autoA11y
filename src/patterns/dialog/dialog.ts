@@ -2,23 +2,13 @@ import { createClassToggler } from "@core/classes";
 import { ensureId, setAriaExpanded, setAriaHidden } from "@core/attributes";
 import { dispatch } from "@core/events";
 import { setHiddenState, setInert } from "@core/styles";
+import { createFocusTrap, focusElement } from "@core/focus";
 
 type BackgroundSnapshot = {
   el: HTMLElement;
   ariaHidden: string | null;
   inert: boolean;
 };
-
-const focusableSelector = [
-  'a[href]',
-  'area[href]',
-  'button:not([disabled])',
-  'input:not([disabled]):not([type="hidden"])',
-  'select:not([disabled])',
-  'textarea:not([disabled])',
-  '[tabindex]:not([tabindex="-1"])',
-  '[contenteditable="true"]'
-].join(", ");
 
 interface DialogController {
   registerTrigger(trigger: HTMLElement): void;
@@ -44,7 +34,7 @@ function ensureDialogController(target: HTMLElement): DialogController {
 
   let open = false;
   let activeTrigger: HTMLElement | null = null;
-  let previousFocus: Element | null = null;
+  let previousFocus: HTMLElement | null = null;
   let previousOverflow: string | null = null;
 
   const getClassToggle = (trigger: HTMLElement) => {
@@ -59,39 +49,6 @@ function ensureDialogController(target: HTMLElement): DialogController {
   const applyTriggerState = (trigger: HTMLElement, expanded: boolean) => {
     setAriaExpanded(trigger, expanded);
     getClassToggle(trigger)(expanded, target);
-  };
-
-  const focusableElements = () =>
-    Array.from(target.querySelectorAll<HTMLElement>(focusableSelector)).filter(
-      (el) => !el.hasAttribute("disabled") && !el.getAttribute("aria-hidden")
-    );
-
-  const focusFirstElement = () => {
-    const focusables = focusableElements();
-    const first = focusables[0] ?? target;
-    if (typeof first.focus === "function") {
-      first.focus();
-    }
-  };
-
-  const trapTabKey = (event: KeyboardEvent) => {
-    const focusables = focusableElements();
-    if (!focusables.length) {
-      event.preventDefault();
-      target.focus();
-      return;
-    }
-
-    const currentIndex = focusables.indexOf(document.activeElement as HTMLElement);
-    if (event.shiftKey) {
-      event.preventDefault();
-      const prevIndex = currentIndex <= 0 ? focusables.length - 1 : currentIndex - 1;
-      focusables[prevIndex].focus();
-    } else {
-      event.preventDefault();
-      const nextIndex = currentIndex === -1 || currentIndex === focusables.length - 1 ? 0 : currentIndex + 1;
-      focusables[nextIndex].focus();
-    }
   };
 
   const lockBackgroundScroll = () => {
@@ -160,11 +117,11 @@ function ensureDialogController(target: HTMLElement): DialogController {
     backgroundState.length = 0;
   };
 
-  const focusWithinDialog = (event: FocusEvent) => {
+  const focusTrap = createFocusTrap(target);
+
+  const handleFocusIn = (event: FocusEvent) => {
     if (!open) return;
-    if (!target.contains(event.target as Node)) {
-      focusFirstElement();
-    }
+    focusTrap.handleFocusIn(event);
   };
 
   const handleKeydown = (event: KeyboardEvent) => {
@@ -172,8 +129,8 @@ function ensureDialogController(target: HTMLElement): DialogController {
     if (event.key === "Escape") {
       event.preventDefault();
       controller.close();
-    } else if (event.key === "Tab") {
-      trapTabKey(event);
+    } else {
+      focusTrap.handleKeydown(event);
     }
   };
 
@@ -214,7 +171,7 @@ function ensureDialogController(target: HTMLElement): DialogController {
 
     setHiddenState(target, false);
 
-    window.setTimeout(() => focusFirstElement(), 0);
+    queueMicrotask(() => focusTrap.focusFirst());
 
     dispatch(source, "automagica11y:toggle", { expanded: true, trigger: source, target });
   };
@@ -246,7 +203,7 @@ function ensureDialogController(target: HTMLElement): DialogController {
     }
 
     if (restoreFocus && focusReturn && typeof focusReturn.focus === "function") {
-      window.setTimeout(() => focusReturn.focus(), 0);
+      queueMicrotask(() => focusElement(focusReturn));
     }
   };
 
@@ -282,7 +239,7 @@ function ensureDialogController(target: HTMLElement): DialogController {
   };
 
   target.addEventListener("click", handleTargetClick);
-  document.addEventListener("focusin", focusWithinDialog, true);
+  document.addEventListener("focusin", handleFocusIn, true);
   document.addEventListener("keydown", handleKeydown, true);
 
   const controller: DialogController = {

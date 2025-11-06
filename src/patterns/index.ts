@@ -2,6 +2,8 @@ import { registerPattern } from "@core/registry";
 import { initToggle } from "./toggle/toggle";
 import { initTooltip } from "./tooltip/tooltip";
 import { initDialog } from "./dialog/dialog";
+import { initFocusInitial } from "./focus/focus-initial";
+import { initFocusMap } from "./focus/focus-map";
 export { registerAnnouncePlugin } from "./announce/announce";
 
 registerPattern("toggle", "[data-automagica11y-toggle]", (node) => {
@@ -22,4 +24,16 @@ registerPattern("dialog", "[data-automagica11y-dialog]", (node) => {
   }
 });
 
-export { initToggle, initTooltip, initDialog };
+registerPattern("focus-initial", "[data-automagica11y-focus-initial]", (node) => {
+  if (node instanceof Element) {
+    initFocusInitial(node);
+  }
+});
+
+registerPattern("focus-map", "[data-automagica11y-focus-map]", (node) => {
+  if (node instanceof Element) {
+    initFocusMap(node);
+  }
+});
+
+export { initToggle, initTooltip, initDialog, initFocusInitial, initFocusMap };

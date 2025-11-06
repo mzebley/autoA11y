@@ -68,6 +68,15 @@ Keeps DOM visibility and inert management consistent.
 - `setHiddenState()` syncs `hidden` and `aria-hidden`.
 - `setInert()` toggles the `inert` attribute while preserving author intent.
 
+### `focus.ts`
+
+Reusable focus primitives shared by dialogs and focus patterns.
+
+- `getFocusableIn()` enumerates tabbable descendants.
+- `focusElement()` focuses while preserving original tabindex.
+- `createFocusTrap()` loops focus within a container.
+- `applyFocusOrder()` applies temporary tabindex maps and restores originals.
+
 ### `aria.ts`
 
 Lightweight helper for applying ARIA attributes only when missing. (Currently a single utility with room to grow.)
