@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>automagicA11y – Toggle Example</title>
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
   <main>
@@ -25,8 +26,30 @@
         <p>This content is revealed when the disclosure is open.</p>
       </div>
     </section>
+
+    <section class="card">
+      <h2>Implementation</h2>
+      <p>Attach `data-automagica11y-toggle` to the trigger and point it to the target element you want to show or hide.</p>
+
+      <pre><code class="language-html">&lt;button
+  data-automagica11y-toggle="#details"
+  data-automagica11y-target-class-open="panel--visible"
+  data-automagica11y-target-class-closed="panel--hidden">
+  More details
+&lt;/button>
+
+&lt;div id="details" class="panel">
+  &lt;p>This content is revealed when the disclosure is open.&lt;/p>
+&lt;/div></code></pre>
+
+      <p>Load the bundle (or import from npm) once per page to register the toggle pattern.</p>
+
+      <pre><code class="language-html">&lt;script src="../dist/automagica11y.min.js">&lt;/script></code></pre>
+    </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js"></script>
   <!-- Built bundle expected at dist/automagica11y.min.js -->
   <script src="../dist/automagica11y.min.js"></script>
 </body>

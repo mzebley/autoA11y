@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>automagicA11y – Announce Pattern</title>
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
   <main>
@@ -43,8 +44,34 @@
         <p>This disclosure relies on the default announcement text generated from the trigger label.</p>
       </div>
     </section>
+
+    <section class="card">
+      <h2>Implementation</h2>
+      <p>Apply the `data-automagica11y-announce` attributes to any toggle trigger that should speak state changes.</p>
+
+      <pre><code class="language-html">&lt;button
+  data-automagica11y-toggle="#faq-answer"
+  data-automagica11y-announce="polite"
+  data-automagica11y-announce-open="FAQ expanded"
+  data-automagica11y-announce-closed="FAQ collapsed">
+  Toggle FAQ
+&lt;/button>
+
+&lt;div id="faq-answer">
+  &lt;p>Hidden FAQ copy...&lt;/p>
+&lt;/div></code></pre>
+
+      <p>Register the announce plugin once at startup so it can listen for `automagica11y:toggle` events.</p>
+
+      <pre><code class="language-js">import { registerAnnouncePlugin } from "automagica11y";
+
+registerAnnouncePlugin();</code></pre>
+    </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
   <script type="module">
     import { registerAnnouncePlugin } from "../dist/automagica11y.esm.js";
 

@@ -6,7 +6,7 @@ This document explains how **automagicA11y** is structured internally and how it
 
 ## Overview
 
-automagicA11y follows a modular design where each **pattern** (toggle + tooltip today, dialog next) is self-contained but shares core utilities for:
+automagicA11y follows a modular design where each **pattern** (toggle, tooltip, dialog today; more coming) is self-contained but shares core utilities for:
 
 - Class management
 - ARIA attribute wiring
@@ -73,7 +73,7 @@ The announce pattern is the canonical listener for these events. Once `registerA
 
 ## Pattern Isolation
 
-Each pattern registers against its own selector. Today that includes toggle and tooltip, and upcoming patterns (dialog, etc.) will follow the same convention.
+Each pattern registers against its own selector. Today that includes toggle, tooltip, and dialog; upcoming patterns (accordion, menu, etc.) will follow the same convention.
 All patterns share the same attribute naming grammar (trigger/target/class/action) but register separately via the registry.
 
 This ensures no collisions and predictable initialization order.

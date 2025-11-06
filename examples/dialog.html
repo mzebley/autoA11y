@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>automagicA11y – Dialog Example</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <main>
+    <h1>Dialog</h1>
+    <p>
+      Dialogs lock focus within the modal, disable background content, and return focus to the trigger automatically.
+    </p>
+
+    <section class="card">
+      <h2 id="session-card-title">Session timeout</h2>
+      <p>Open the dialog to see the focus trap, close controls, and background inerting in action.</p>
+
+      <button
+        class="btn"
+        aria-labelledby="session-card-title"
+        data-automagica11y-dialog="#session-dialog"
+        data-automagica11y-trigger-class-open="is-armed">
+        Extend session
+      </button>
+
+      <p style="margin-top: 1.25rem;">
+        Background content is still interactive until the dialog opens.
+        <a href="https://example.com" target="_blank" rel="noreferrer">Sample background link</a>
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Implementation</h2>
+      <p>The dialog trigger points to the modal container. Add `data-automagica11y-dialog-close` to any closing control and `data-automagica11y-dialog-dismissable` to allow backdrop clicks to dismiss.</p>
+
+      <pre><code class="language-html">&lt;button
+  data-automagica11y-dialog="#session-dialog"
+  data-automagica11y-trigger-class-open="is-armed">
+  Extend session
+&lt;/button>
+
+&lt;div
+  id="session-dialog"
+  role="dialog"
+  aria-labelledby="session-dialog-title"
+  data-automagica11y-dialog-dismissable
+  hidden>
+  &lt;div role="document">
+    &lt;h2 id="session-dialog-title">Stay signed in?&lt;/h2>
+    &lt;p id="session-dialog-desc">Your session will expire in 90 seconds...&lt;/p>
+    &lt;div class="dialog-actions">
+      &lt;button data-automagica11y-dialog-close>Stay signed in&lt;/button>
+      &lt;button type="button">Sign out&lt;/button>
+    &lt;/div>
+  &lt;/div>
+&lt;/div></code></pre>
+
+      <p>Load the compiled bundle (or import the library in your app code) once to register the dialog pattern.</p>
+
+      <pre><code class="language-html">&lt;script src="../dist/automagica11y.min.js">&lt;/script></code></pre>
+    </section>
+  </main>
+
+  <div
+    id="session-dialog"
+    class="dialog-backdrop"
+    role="dialog"
+    aria-labelledby="session-dialog-title"
+    aria-describedby="session-dialog-desc"
+    data-automagica11y-dialog-dismissable
+    hidden>
+    <div class="dialog-shell" role="document">
+      <h2 id="session-dialog-title">Stay signed in?</h2>
+      <p id="session-dialog-desc">
+        Your session will expire in 90 seconds. Select an option below to stay signed in or sign out securely.
+      </p>
+
+      <div class="dialog-actions">
+        <button class="btn btn-primary" data-automagica11y-dialog-close>Stay signed in</button>
+        <button class="btn" type="button">Sign out</button>
+      </div>
+
+      <button class="btn" data-automagica11y-dialog-close style="margin-top: 1.5rem;">Close dialog</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js"></script>
+  <script src="../dist/automagica11y.min.js"></script>
+</body>
+</html>

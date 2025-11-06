@@ -120,18 +120,36 @@ If no custom trigger classes are defined, automagicA11y falls back to `automagic
 - When no custom classes are defined, tooltip triggers keep their existing class list (no default toggle classes).
 - Tooltips emit the shared `automagica11y:ready`/`automagica11y:toggle` events so announce or custom plugins can react.
 
-### Dialog (planned)
+### Dialog
 
-Manages focus trap, `aria-modal`, and background `inert` state automatically.
+#### Minimum viable example
 
 ```html
-<button
-  data-automagica11y-dialog="#login"
-  data-automagica11y-trigger-class-open="pressed">
-  Login
-</button>
-<div id="login" role="dialog" hidden>Dialog content...</div>
+<button data-automagica11y-dialog="#session-dialog">Extend session</button>
+
+<div
+  id="session-dialog"
+  hidden
+  role="dialog"
+  aria-labelledby="session-title"
+  data-automagica11y-dialog-dismissable>
+  <div role="document">
+    <h2 id="session-title">Stay signed in?</h2>
+    <p>Your session will expire in 2 minutes.</p>
+    <button data-automagica11y-dialog-close>Stay signed in</button>
+    <button type="button">Sign out</button>
+  </div>
+</div>
 ```
+
+#### What happens automatically
+
+- Trigger receives `aria-controls`, `aria-expanded`, and `aria-haspopup="dialog"`.
+- Dialog container gets `role="dialog"`, `aria-modal="true"`, `tabindex="-1"`, and stays hidden by default.
+- Focus moves inside the dialog on open and returns to the previous element on close.
+- Background siblings receive `inert` + `aria-hidden` and scroll is locked while the dialog is open.
+- Escape, Space, and Enter support open/close flows; elements with `data-automagica11y-dialog-close` close the dialog.
+- Shared lifecycle events (`automagica11y:ready` / `automagica11y:toggle`) fire for plugins and analytics.
 
 ---
 
@@ -296,7 +314,7 @@ Each pattern initializes independently, avoiding collisions while sharing helper
 ### v0.2
 
 - [x] Tooltip pattern
-- [ ] Dialog pattern
+- [x] Dialog pattern
 - [ ] Shared class, attribute, and style helpers
 - [ ] Registry-based initialization
 
@@ -318,6 +336,7 @@ Each pattern initializes independently, avoiding collisions while sharing helper
 | [Patterns Roadmap](./docs/patterns.md) | Current and planned interactive patterns (toggle, tooltip, dialog, etc.). |
 | [Plugins](./docs/plugins.md) | Optional future enhancements (persist, animate, hash-sync, announce, inert). |
 | [Attribute Grammar](./docs/attributes.md) | Explains the `data-automagica11y-[element]-[affordance]-[action]` syntax and philosophy. |
+| [Dialog Pattern](./src/patterns/dialog/README.md) | Deep dive into dialog configuration, focus trapping, and background management. |
 | [Contributing Guide](./docs/CONTRIBUTING.md) | How to build, test, and contribute new patterns or fixes. |
 | [Branding & Voice](./docs/branding.md) | Taglines, tone, and visual direction for the project identity. |
 

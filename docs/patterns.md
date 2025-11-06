@@ -31,16 +31,20 @@ automagicA11y patterns are small, self-contained behaviors that automatically ha
 
 ---
 
+### Dialog (v0.2)
+
+**Description:** Accessible modal dialog that traps focus, locks background content, and restores state on close.
+
+**Highlights:**
+- Adds `aria-haspopup="dialog"`, `aria-expanded`, and `aria-controls` to triggers.
+- Ensures the dialog container is hidden by default with `role="dialog"`, `aria-modal`, and `tabindex="-1"`.
+- Moves focus inside on open, keeps Tab/Shift+Tab cycling within, and returns focus when closing.
+- Applies `inert` + `aria-hidden` to background siblings and prevents body scroll while open.
+- Dispatches `automagica11y:ready`/`automagica11y:toggle` events so announce, analytics, or custom hooks can react.
+
+---
+
 ## In Development
-
-### Dialog (target release v0.2)
-
-**Goal:** Accessible modal system with `aria-modal`, focus trapping, and inert background management.
-
-**Planned features:**
-- `data-automagica11y-dialog` trigger binding.
-- Background `inert` toggling.
-- ESC-to-close and focus restoration.
 
 ### Accordion (target release v0.3)
 

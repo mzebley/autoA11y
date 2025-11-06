@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>automagicA11y – Tooltip Example</title>
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
   <main>
@@ -54,8 +55,31 @@
         </div>
       </div>
     </section>
+
+    <section class="card">
+      <h2>Implementation</h2>
+      <p>Reference the tooltip element via `data-automagica11y-tooltip` and optionally define class hooks for open/closed states.</p>
+
+      <pre><code class="language-html">&lt;div class="tooltip-wrapper">
+  &lt;button
+    data-automagica11y-tooltip="#tip-forecast"
+    data-automagica11y-trigger-class-active="is-armed"
+    data-automagica11y-target-class-open="tooltip-bubble--visible">
+    Show forecast
+  &lt;/button>
+  &lt;span id="tip-forecast" class="tooltip-bubble" role="tooltip" hidden>
+    Expect scattered showers...
+  &lt;/span>
+&lt;/div></code></pre>
+
+      <p>Include the compiled bundle (or import the library) once to register the tooltip pattern.</p>
+
+      <pre><code class="language-html">&lt;script src="../dist/automagica11y.min.js">&lt;/script></code></pre>
+    </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js"></script>
   <script src="../dist/automagica11y.min.js"></script>
 </body>
 </html>

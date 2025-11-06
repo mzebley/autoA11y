@@ -34,6 +34,24 @@ data-automagica11y-[element]-[affordance]-[action]
 <span id="tip1" role="tooltip">Tooltip text</span>
 ```
 
+### Dialog Example
+
+```html
+<button
+  data-automagica11y-dialog="#modal"
+  data-automagica11y-trigger-class-open="btn--armed">
+  Open dialog
+</button>
+
+<div id="modal" role="dialog" aria-labelledby="modal-title" hidden>
+  <div role="document">
+    <h2 id="modal-title">Announcement</h2>
+    <p>This dialog shows how background inerting and closing controls work.</p>
+    <button data-automagica11y-dialog-close>Close</button>
+  </div>
+</div>
+```
+
 ---
 
 ## Grammar Benefits
