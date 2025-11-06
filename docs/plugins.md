@@ -66,3 +66,8 @@ Applies/removes `inert` attribute on non-active content areas for modals or dial
 ## Future API Shape
 
 As additional plugins materialize, the plan is to expose a lightweight hook system (for example, `registerPlugin(name, hooks)`) so cross-cutting behaviors can subscribe to pattern lifecycle events without manual wiring. That API is still in exploration.
+
+---
+
+© 2025 Mark Zebley • automagicA11y  
+_Licensed under the MIT License_

@@ -17,3 +17,8 @@ Friendly, practical, and developer-first. Avoid heavy jargon or corporate-speak.
 
 - Color theme: calm accessibility blues and neutral backgrounds.
 - Logo concept: an attribute tag `<a11y>` morphing into a toggle icon.
+
+---
+
+© 2025 Mark Zebley • automagicA11y  
+_Licensed under the MIT License_

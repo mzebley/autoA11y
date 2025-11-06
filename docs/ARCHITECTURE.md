@@ -93,3 +93,8 @@ This ensures no collisions and predictable initialization order.
 4. Use shared helpers (e.g., `getClassConfig()`, `applyClasses()`).
 5. Add examples and tests.
 6. Done.
+
+---
+
+© 2025 Mark Zebley • automagicA11y  
+_Licensed under the MIT License_

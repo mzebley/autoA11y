@@ -41,3 +41,8 @@ data-automagica11y-[element]-[affordance]-[action]
 - **Consistency** — one pattern for all features
 - **Discoverability** — developers can infer attributes by name
 - **Scalability** — easy to extend with `-attr-` or `-style-` affordances later
+
+---
+
+© 2025 Mark Zebley • automagicA11y  
+_Licensed under the MIT License_

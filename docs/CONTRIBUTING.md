@@ -49,3 +49,8 @@ npm test
 - [ ] Uses truthiness mapping
 - [ ] Has example and test coverage
 - [ ] Passes build + lint
+
+---
+
+© 2025 Mark Zebley • automagicA11y  
+_Licensed under the MIT License_

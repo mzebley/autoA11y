@@ -1,7 +1,5 @@
 # automagicA11y
 
-Licensed under the MIT License
-
 Version: 0.1 (concept phase)
 
 _Tagline: Drop an attribute. Get the ARIA._
@@ -301,18 +299,6 @@ Each pattern initializes independently, avoiding collisions while sharing helper
 
 ---
 
-## License
-
-MIT License (planned)
-
----
-
-## Tagline Ideas
-
-- "Drop an attribute. Get the ARIA."
-- "No more aria-yak-shaving."
-- "Accessibility by declaration."
-
 ## Further Reading
 
 | Topic | Description |
@@ -327,10 +313,5 @@ MIT License (planned)
 
 ---
 
-**Tip:** Keep the README focused on quick adoption and usage, and use these linked docs for deep architectural and contributor details.
-
----
-
-(c) 2025 Mark Zebley
-
----
+© 2025 Mark Zebley • automagicA11y  
+_Licensed under the MIT License_

@@ -56,3 +56,8 @@ automagicA11y patterns are small, self-contained behaviors that automatically ha
 - Keyboard arrow navigation and proper menu roles.
 - Escape key close behavior.
 - Optional hover activation.
+
+---
+
+© 2025 Mark Zebley • automagicA11y  
+_Licensed under the MIT License_
