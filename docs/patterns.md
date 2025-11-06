@@ -18,17 +18,20 @@ automagicA11y patterns are small, self-contained behaviors that automatically ha
 
 ---
 
+### Tooltip (v0.2)
+
+**Description:** Hover/focus tooltip that wires `aria-describedby`, `role="tooltip"`, and manages visibility automatically.
+
+**Highlights:**
+- Hides the tooltip by default and toggles `aria-hidden`.
+- Shows on pointer enter or focus; hides on blur, pointer leave (with a short delay), or Escape.
+- Keeps the tooltip visible while pointer rests on either trigger or tooltip content.
+- Reuses class mapping attributes without applying toggle-specific defaults.
+- Emits `automagica11y:ready`/`automagica11y:toggle` so announce or custom listeners can respond.
+
+---
+
 ## In Development
-
-### Tooltip (target release v0.2)
-
-**Goal:** Handle hover/focus interactions using `aria-describedby` and `role="tooltip"`.
-
-**Planned features:**
-- Hover/focus open, blur/mouseleave close.
-- `data-automagica11y-tooltip` target selector.
-- Automatic ARIA role assignment.
-- Optional delay timers for friendlier UX.
 
 ### Dialog (target release v0.2)
 

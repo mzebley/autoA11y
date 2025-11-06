@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>automagicA11y – Tooltip Example</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main>
+    <h1>Tooltip</h1>
+    <p>
+      Tooltips show contextual information on hover or focus without any imperative wiring. They share the same class grammar as other patterns, so styling stays declarative.
+    </p>
+
+    <section class="card">
+      <h2 id="forecast-heading">Daily forecast</h2>
+      <p>Hover or focus the button to read the screen-friendly summary.</p>
+
+      <div class="tooltip-wrapper" aria-labelledby="forecast-heading">
+        <button
+          class="btn"
+          data-automagica11y-tooltip="#tip-forecast"
+          data-automagica11y-trigger-class-active="is-armed"
+          data-automagica11y-target-class-open="tooltip-bubble--visible">
+          Show forecast
+        </button>
+        <span id="tip-forecast" class="tooltip-bubble" role="tooltip" hidden>
+          Expect scattered showers in the afternoon. Umbrellas recommended after 2&nbsp;PM.
+        </span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 id="field-heading">Form hint</h2>
+      <p>
+        Tooltips pair well with form labels. Focus stays on the field while assistive tech gets additional context through <code>aria-describedby</code>.
+      </p>
+      <label for="email">Work email</label>
+      <div class="tooltip-field">
+        <input id="email" type="email" class="field" placeholder="name@example.com" />
+        <div class="tooltip-wrapper">
+          <button
+            class="btn"
+            type="button"
+            aria-label="Why do we need your work email?"
+            data-automagica11y-tooltip="#tip-email"
+            data-automagica11y-target-class-open="tooltip-bubble--visible">
+            ℹ️
+          </button>
+          <span id="tip-email" class="tooltip-bubble" role="tooltip" hidden>
+            We use your work address to connect you with enterprise-specific features and onboarding.
+          </span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="../dist/automagica11y.min.js"></script>
+</body>
+</html>

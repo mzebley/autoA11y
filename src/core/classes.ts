@@ -29,6 +29,14 @@ export interface A11yClassConfig {
   target:  { true: string[]; false: string[] };
 }
 
+export interface ClassConfigOptions {
+  /**
+   * Default trigger classes (`automagic-toggle-*`) are only desirable for patterns that expose
+   * a toggled disclosure state. Tooltip leaves this off by default.
+   */
+  applyTriggerFallback?: boolean;
+}
+
 function parseClassList(val: string | null): string[] {
   if (!val) return [];
   if (val.trim().startsWith("[")) {
@@ -42,7 +50,7 @@ function parseClassList(val: string | null): string[] {
   return val.trim().split(/\s+/).filter(Boolean);
 }
 
-export function getClassConfig(el: HTMLElement): A11yClassConfig {
+export function getClassConfig(el: HTMLElement, options: ClassConfigOptions = {}): A11yClassConfig {
   const cfg: A11yClassConfig = { trigger: { true: [], false: [] }, target: { true: [], false: [] } };
   sides.forEach((side: Side) => {
     stateKeywords.forEach((state: StateKeyword) => {
@@ -54,7 +62,8 @@ export function getClassConfig(el: HTMLElement): A11yClassConfig {
     });
   });
   // defaults on trigger if nothing provided
-  if (!cfg.trigger.true.length && !cfg.trigger.false.length) {
+  const applyFallback = options.applyTriggerFallback ?? true;
+  if (applyFallback && !cfg.trigger.true.length && !cfg.trigger.false.length) {
     cfg.trigger.true = ["automagic-toggle-open"];
     cfg.trigger.false = ["automagic-toggle-closed"];
   }

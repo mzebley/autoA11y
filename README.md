@@ -96,19 +96,29 @@ If no custom trigger classes are defined, automagicA11y falls back to `automagic
 | `data-automagica11y-hash`              | Sync state with the URL hash              |
 | `data-automagica11y-animate`           | Delay hiding to support transitions       |
 
-### Tooltip (planned)
+### Tooltip
 
-Reuses the same attribute syntax but maps to `aria-describedby` and `role="tooltip"`.
+#### Minimum viable example
 
 ```html
-<button
-  data-automagica11y-tooltip="#tip1"
-  data-automagica11y-trigger-class-open="tooltip-active"
-  data-automagica11y-target-class-open="tooltip-visible">
-  ?
-</button>
-<span id="tip1" role="tooltip" hidden>Helpful tip...</span>
+<button data-automagica11y-tooltip="#tip1">?</button>
+<span id="tip1">Helpful tip...</span>
 ```
+
+#### What happens automatically
+
+- `aria-describedby` connects the trigger to the tooltip
+- `role="tooltip"` and `aria-hidden` are applied to the target
+- Tooltip is hidden by default (`hidden = true`)
+- Pointer hover or focus shows the tooltip
+- Pointer leave, blur, or pressing Escape hides it
+- Optional class hooks apply via the same `data-automagica11y-[trigger|target]-class-*` attributes
+
+#### Behavior notes
+
+- Tooltip stays visible while the pointer rests on either the trigger or tooltip element.
+- When no custom classes are defined, tooltip triggers keep their existing class list (no default toggle classes).
+- Tooltips emit the shared `automagica11y:ready`/`automagica11y:toggle` events so announce or custom plugins can react.
 
 ### Dialog (planned)
 
@@ -285,7 +295,7 @@ Each pattern initializes independently, avoiding collisions while sharing helper
 
 ### v0.2
 
-- [ ] Tooltip pattern
+- [x] Tooltip pattern
 - [ ] Dialog pattern
 - [ ] Shared class, attribute, and style helpers
 - [ ] Registry-based initialization

@@ -1,6 +1,6 @@
 # Truthiness Mapping System
 
-automagicA11y introduces a **truthiness mapping** to normalize state terms (like `open`, `expanded`, or `active`) into a boolean model internally.
+automagicA11y introduces a **truthiness mapping** to normalize state terms (like `open`, `expanded`, or `active`) into a boolean model internally. Toggle and tooltip patterns both rely on this mapping when applying trigger/target classes.
 
 ---
 

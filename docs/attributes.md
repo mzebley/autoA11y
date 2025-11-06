@@ -25,7 +25,7 @@ data-automagica11y-[element]-[affordance]-[action]
 <div id="faq1">...</div>
 ```
 
-### Tooltip Example _(planned pattern)_
+### Tooltip Example
 
 ```html
 <button data-automagica11y-tooltip="#tip1" data-automagica11y-trigger-class-open="hovering">

@@ -36,6 +36,7 @@ Add `data-automagica11y-announce` to a trigger to opt in:
 - Consumes trigger data attributes for custom messages
 - Generates sensible defaults from accessible names
 - Suppresses duplicate messages and skips redundant focused updates
+- Listens to `automagica11y:toggle` from both toggle and tooltip patterns
 
 ---
 

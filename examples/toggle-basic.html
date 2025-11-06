@@ -4,27 +4,28 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>automagicA11y – Toggle Example</title>
-  <style>
-        body { font-family: system-ui, sans-serif; line-height: 1.5; padding: 2rem; max-width: 40rem; margin: 0 auto; }
-    [hidden] { display: none !important; }
-    .btn { padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 6px; }
-    .automagic-toggle-open { background: #eef; }
-    .automagic-toggle-closed { background: #f6f6f6; }
-    .panel { padding: .75rem; border-left: 4px solid #99c; margin-top: .5rem; }
-  </style>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <h1>Toggle / Disclosure</h1>
+  <main>
+    <h1>Toggle / Disclosure</h1>
 
-  <button class="btn"
-    data-automagica11y-toggle="#details"
-  >
-    More details
-  </button>
+    <section class="card">
+      <h2 id="details-heading">Product Details</h2>
+      <button
+        class="btn"
+        aria-labelledby="details-heading"
+        data-automagica11y-toggle="#details"
+        data-automagica11y-target-class-open="panel--visible"
+        data-automagica11y-target-class-closed="panel--hidden">
+        More details
+      </button>
 
-  <div id="details" class="panel">
-    <p>This content is revealed when the disclosure is open.</p>
-  </div>
+      <div id="details" class="panel">
+        <p>This content is revealed when the disclosure is open.</p>
+      </div>
+    </section>
+  </main>
 
   <!-- Built bundle expected at dist/automagica11y.min.js -->
   <script src="../dist/automagica11y.min.js"></script>
