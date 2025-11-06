@@ -6,7 +6,7 @@ This document explains how **automagicA11y** is structured internally and how it
 
 ## Overview
 
-automagicA11y follows a modular design where each **pattern** (toggle, tooltip, dialog, etc.) is self-contained but shares core utilities for:
+automagicA11y follows a modular design where each **pattern** (toggle today, tooltip/dialog planned) is self-contained but shares core utilities for:
 
 - Class management
 - ARIA attribute wiring
@@ -48,25 +48,15 @@ Handles class toggling and **truthiness mapping**.
 
 ### `aria.ts`
 
-Provides utilities for applying and managing ARIA attributes safely.
-Example:
-
-```ts
-setIfAbsent(el, "role", "button");
-```
+Lightweight helper for applying ARIA attributes only when missing. (Currently a single utility with room to grow.)
 
 ### `keyboard.ts`
 
-Provides utilities for managing keyboard interactions.
-Example:
-
-```ts
-if (isActivateKey(e)) toggle();
-```
+Holds shared keyboard affordance helpers such as `isActivateKey()`. Additional helpers will land alongside new patterns.
 
 ### `events.ts`
 
-Centralized event dispatch helpers for uniform custom event handling.
+Wrapper for dispatching typed custom events. Future patterns can build on this instead of re-implementing dispatch logic.
 
 ---
 
@@ -76,16 +66,15 @@ Every component dispatches consistent lifecycle events:
 
 - `automagica11y:ready` — after setup
 - `automagica11y:toggle` — whenever state changes
-- `automagica11y:open` / `automagica11y:close` — for convenience and custom logic
 
-The announce pattern is the canonical listener for these events. Once `registerAnnouncePlugin()` runs, a shared live region responds to hooks like `automagica11y:toggle`, so future patterns (dialogs, accordions, menus) emit events and rely on announce for ARIA live messaging instead of creating their own regions.
+The announce pattern is the canonical listener for these events. Once `registerAnnouncePlugin()` runs, a shared live region responds to hooks like `automagica11y:toggle`. Future patterns (dialogs, accordions, menus) will emit the same events so announce can announce their state transitions without creating new live regions.
 
 ---
 
 ## Pattern Isolation
 
-Each pattern (toggle, tooltip, dialog) only responds to its own selector.
-They all use the same attribute naming conventions (trigger/target/class/action) but register separately via the registry.
+Each pattern registers against its own selector. Today that means the toggle pattern, and upcoming patterns (tooltip, dialog, etc.) will follow the same convention.
+All patterns share the same attribute naming grammar (trigger/target/class/action) but register separately via the registry.
 
 This ensures no collisions and predictable initialization order.
 

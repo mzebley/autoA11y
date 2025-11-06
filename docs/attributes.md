@@ -1,6 +1,6 @@
 # Attribute Grammar
 
-automagicA11y uses a predictable, declarative attribute structure.
+automagicA11y uses a predictable, declarative attribute structure. Toggle/disclosure ships today, and upcoming patterns (tooltip, dialog, etc.) will reuse the same grammar.
 
 ```text
 data-automagica11y-[element]-[affordance]-[action]
@@ -25,7 +25,7 @@ data-automagica11y-[element]-[affordance]-[action]
 <div id="faq1">...</div>
 ```
 
-### Tooltip Example
+### Tooltip Example _(planned pattern)_
 
 ```html
 <button data-automagica11y-tooltip="#tip1" data-automagica11y-trigger-class-open="hovering">

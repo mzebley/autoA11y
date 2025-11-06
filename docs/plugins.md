@@ -1,22 +1,34 @@
-# Plugin System (Future)
+# Plugin Concepts
 
-automagicA11y will support lightweight, opt-in plugins that extend the behavior of core patterns.
-
----
-
-## Design Goals
-
-- Stay <2 KB per plugin
-- No dependencies
-- Use `registerPlugin(name, { hooks })` API
+automagicA11y aims to keep the core tiny and let optional behaviors layer on as needed. Today that means a single shipped plugin (announce) with more specialized plugins planned once patterns expand.
 
 ---
 
-## v0.1 — Announce (Cross-cutting)
+## Current Plugin — Announce (Cross-cutting)
 
 ### Description
 
 Shared live region that centralizes screen reader announcements for any pattern that emits `automagica11y:*` events.
+
+### Usage
+
+```ts
+import { registerAnnouncePlugin } from "automagica11y";
+
+registerAnnouncePlugin();
+```
+
+Add `data-automagica11y-announce` to a trigger to opt in:
+
+```html
+<button
+  data-automagica11y-toggle="#details"
+  data-automagica11y-announce="polite"
+  data-automagica11y-announce-open="Details expanded"
+  data-automagica11y-announce-closed="Details collapsed">
+  Toggle details
+</button>
+```
 
 ### Features
 
@@ -27,7 +39,7 @@ Shared live region that centralizes screen reader announcements for any pattern 
 
 ---
 
-## Planned Plugins
+## Planned Plugins (Roadmap)
 
 ### 1. Persist Plugin
 
@@ -45,22 +57,12 @@ Synchronizes toggle state with the URL hash (deep-linking).
 
 Delays hiding until CSS transition ends; respects `prefers-reduced-motion`.
 
-### 4. Announce Plugin
-
-Adds live region updates via `aria-live` for screen reader announcements.
-
-### 5. Inert Plugin
+### 4. Inert Plugin
 
 Applies/removes `inert` attribute on non-active content areas for modals or dialogs.
 
 ---
 
-## Example Hook Interface
+## Future API Shape
 
-```ts
-registerPlugin('persist', {
-  onInit: (trigger, target) => {},
-  onOpen: (trigger, target) => {},
-  onClose: (trigger, target) => {}
-});
-```
+As additional plugins materialize, the plan is to expose a lightweight hook system (for example, `registerPlugin(name, hooks)`) so cross-cutting behaviors can subscribe to pattern lifecycle events without manual wiring. That API is still in exploration.

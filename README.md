@@ -61,10 +61,7 @@ The guiding principle of automagicA11y is to make accessibility effortless and p
    <div id="details">Hidden content</div>
    ```
 
-   If no custom classes are defined, automagicA11y defaults to:
-
-   - Trigger: `automagic-toggle-open` / `automagic-toggle-closed`
-   - Target: `automagic-target-open` / `automagic-target-closed`
+If no custom trigger classes are defined, automagicA11y falls back to `automagic-toggle-open` / `automagic-toggle-closed`. Targets only receive classes you explicitly configure with `data-automagica11y-target-class-*`.
 
 ---
 
@@ -228,7 +225,6 @@ automagicA11y dispatches custom events for integration:
 
 - `automagica11y:ready` — when a component is initialized
 - `automagica11y:toggle` — when a toggle or disclosure changes state
-- `automagica11y:open` / `automagica11y:close` — convenience events for state transitions
 
 ```js
 document.addEventListener('automagica11y:toggle', (event) => {
@@ -258,7 +254,7 @@ This helper is shared across all patterns to keep class handling consistent.
 
 ```js
 registerPattern('toggle', '[data-automagica11y-toggle]', initToggle);
-registerPattern('tooltip', '[data-automagica11y-tooltip]', initTooltip);
+// Additional patterns (tooltip, dialog, etc.) will register in future releases.
 ```
 
 Each pattern initializes independently, avoiding collisions while sharing helpers.
@@ -273,11 +269,9 @@ Each pattern initializes independently, avoiding collisions while sharing helper
 }
 .automagic-toggle-open {}
 .automagic-toggle-closed {}
-.automagic-target-open {}
-.automagic-target-closed {}
 ```
 
-Authors can override these defaults or disable automatic classes.
+`.automagic-toggle-*` classes are the built-in trigger fallback. Define `data-automagica11y-target-class-*` attributes if you want automagicA11y to manage target-side classes.
 
 ---
 

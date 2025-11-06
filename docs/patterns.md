@@ -1,77 +1,58 @@
-# Patterns Roadmap
+# Pattern Status
 
-automagicA11y patterns are small, self-contained behaviors that automatically handle ARIA attributes, keyboard controls, and class/state reflection.
-
----
-
-## v0.1 — Toggle / Disclosure
-
-### Description
-
-The foundational component. Manages `aria-expanded`, `aria-controls`, and open/closed classes.
-
-### Features
-
-- Handles buttons and non-button elements
-- Custom class support via `data-automagica11y-trigger-class-open`
-- Truthiness mapping for flexible naming
-- Emits lifecycle events (`automagica11y:toggle`)
+automagicA11y patterns are small, self-contained behaviors that automatically handle ARIA attributes, keyboard controls, and class/state reflection. This document tracks what ships today versus what is on the roadmap.
 
 ---
 
-## v0.2 — Tooltip
+## Available Today
 
-### Description
+### Toggle / Disclosure (v0.1)
 
-Handles hover/focus interactions using `aria-describedby` and `role="tooltip"`.
+**Description:** Foundational component for show/hide interactions. Manages `aria-expanded`, `aria-controls`, open/closed truthiness mapping, and class reflection.
 
-### Planned Features
-
-- Open on hover/focus, close on blur/leave
-- `data-automagica11y-tooltip` to point to tooltip element
-- Automatic ARIA role assignment
-- Delay timers for better UX
-
----
-
-## v0.2 — Dialog
-
-### Description
-
-Accessible modal system with `aria-modal`, focus trapping, and inert background.
-
-### Planned Features
-
-- `data-automagica11y-dialog` for trigger/target pair
-- Adds/removes `aria-hidden` from background
-- Keyboard ESC close support
-- Focus restoration to trigger
+**Highlights:**
+- Works with buttons and non-button triggers.
+- Generates trigger IDs, ARIA relationships, and keyboard semantics automatically.
+- Emits `automagica11y:ready` and `automagica11y:toggle` events.
+- Supports declarative class mapping with synonym-aware data attributes.
 
 ---
 
-## v0.3 — Accordion
+## In Development
 
-### Description
+### Tooltip (target release v0.2)
 
-A grouped toggle pattern using the same toggle behavior but with mutual exclusion.
+**Goal:** Handle hover/focus interactions using `aria-describedby` and `role="tooltip"`.
 
-### Planned Features
+**Planned features:**
+- Hover/focus open, blur/mouseleave close.
+- `data-automagica11y-tooltip` target selector.
+- Automatic ARIA role assignment.
+- Optional delay timers for friendlier UX.
 
-- `data-automagica11y-group` attribute
-- Arrow key navigation between triggers
-- Only one open at a time (optional)
+### Dialog (target release v0.2)
 
----
+**Goal:** Accessible modal system with `aria-modal`, focus trapping, and inert background management.
 
-## v0.3+ — Menu / Disclosure Menu
+**Planned features:**
+- `data-automagica11y-dialog` trigger binding.
+- Background `inert` toggling.
+- ESC-to-close and focus restoration.
 
-### Description
+### Accordion (target release v0.3)
 
-Dropdown or disclosure menu following ARIA Menu Button pattern.
+**Goal:** Grouped toggle pattern that builds on the existing toggle logic.
 
-### Planned Features
+**Planned features:**
+- `data-automagica11y-group` attribute for mutual exclusion.
+- Arrow-key navigation between triggers.
+- Optional “only one open” mode.
 
-- Keyboard arrow navigation
-- `role="menu"` and `role="menuitem"` support
-- Escape key closes menu
-- Optional hover activation
+### Menu / Disclosure Menu (target release v0.3+)
+
+**Goal:** Dropdown/disclosure menu following the ARIA Menu Button pattern.
+
+**Planned features:**
+- Keyboard arrow navigation and proper menu roles.
+- Escape key close behavior.
+- Optional hover activation.

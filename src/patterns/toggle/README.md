@@ -111,8 +111,6 @@ Each initialized toggle dispatches the following events:
 |--------|----------------|
 | `automagica11y:ready` | Once the toggle has been initialized and is ready for use |
 | `automagica11y:toggle` | Whenever the toggle changes state |
-| `automagica11y:open` | When expanded |
-| `automagica11y:close` | When collapsed |
 
 Example:
 
@@ -184,15 +182,13 @@ This structure makes it simple to integrate with frameworks, custom logic, or an
 ```css
 .automagic-toggle-open {}
 .automagic-toggle-closed {}
-.automagic-target-open {}
-.automagic-target-closed {}
 
 [hidden] {
   display: none !important;
 }
 ```
 
-These classes are automatically managed by automagicA11y and can be overridden or replaced with your own using `data-automagica11y-*` attributes.
+`.automagic-toggle-*` are the built-in trigger fallbacks. Define `data-automagica11y-target-class-*` attributes if you want automagicA11y to manage target-side classes.
 
 ---
 
