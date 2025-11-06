@@ -1,6 +1,6 @@
 # automagicA11y
 
-Version: 0.1 (concept phase)
+Version: 0.2 (concept phase)
 
 _Tagline: Drop an attribute. Get the ARIA._
 
@@ -264,23 +264,35 @@ document.addEventListener('automagica11y:toggle', (event) => {
 
 ### Core modules
 
-- Registry — pattern registration (toggle, tooltip, dialog, etc.)
-- Helpers — class toggling, ARIA wiring, keyboard management
-- Patterns — behaviors registered via `registerPattern(name, selector, initFn)`
+- `registry.ts` — registers patterns once and exposes scoped hydration helpers (`initPattern`, `initPatterns`, `initNode`, `initAllPatterns`).
+- `classes.ts` — truthiness mapping + `createClassToggler()` for consistent trigger/target class handling.
+- `attributes.ts` — utilities for generating IDs, appending tokenized attributes, and toggling ARIA states.
+- `styles.ts` — shared helpers for `hidden`, `aria-hidden`, and `inert` state management.
+- `events.ts`, `keyboard.ts`, `aria.ts` — supporting utilities for custom events and keyboard affordances.
 
 ### Class helper example
 
 ```js
-applyA11yClasses(cfg, expanded, trigger, target);
+const toggleClasses = createClassToggler(trigger);
+toggleClasses(true, target);
 ```
 
-This helper is shared across all patterns to keep class handling consistent.
+Patterns call the toggler instead of manipulating class lists manually.
 
-### Pattern registration example
+### Pattern registration & initialization
 
 ```js
 registerPattern('toggle', '[data-automagica11y-toggle]', initToggle);
-// Additional patterns (tooltip, dialog, etc.) will register in future releases.
+
+// Hydrate everything in the document (default)
+initAllPatterns();
+
+// Scope hydration to new DOM
+const fragment = document.querySelector('#lazy-loaded');
+initPatterns(['tooltip', 'dialog'], fragment);
+
+// Rehydrate a single node tree
+initNode(fragment);
 ```
 
 Each pattern initializes independently, avoiding collisions while sharing helpers.
@@ -315,8 +327,8 @@ Each pattern initializes independently, avoiding collisions while sharing helper
 
 - [x] Tooltip pattern
 - [x] Dialog pattern
-- [ ] Shared class, attribute, and style helpers
-- [ ] Registry-based initialization
+- [x] Shared class, attribute, and style helpers
+- [x] Registry-based initialization
 
 ### v0.3+
 

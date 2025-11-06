@@ -26,11 +26,18 @@ This architecture ensures that:
 The **registry** is the backbone that keeps patterns independent but coordinated.
 
 ```ts
-registerPattern(name: string, selector: string, initFn: (el: Element) => void)
+registerPattern(name: string, selector: string, initFn: (el: Element) => void);
+
+initPattern("dialog", someContainer);
+initPatterns(["tooltip", "dialog"], someContainer);
+initAllPatterns(document);
+initNode(fragment);
 ```
 
 - Each pattern registers itself with a name and a selector (e.g., `[data-automagica11y-toggle]`).
-- `initAllPatterns()` runs through the registry and initializes all registered selectors in the document or given root.
+- `initPattern()` / `initPatterns()` hydrate specific patterns within a provided root.
+- `initAllPatterns()` hydrates every registered pattern within the provided root (defaults to `document`).
+- `initNode()` is handy for dynamically inserted fragments (SSR, SPA hydration, shadow roots, etc.).
 
 This allows you to dynamically load only the patterns you want, or initialize specific sections of a page.
 
@@ -44,7 +51,22 @@ Handles class toggling and **truthiness mapping**.
 
 - Reads `data-automagica11y-[trigger|target]-class-[action]` attributes.
 - Maps synonyms (`open`, `expanded`, `active`, etc.) to true/false.
-- Applies/removes appropriate classes from both trigger and target.
+- Exposes `createClassToggler()` so patterns flip classes without re-parsing config.
+
+### `attributes.ts`
+
+Shared helpers for predictable IDs and ARIA/state attributes.
+
+- `ensureId()` generates stable element IDs.
+- `appendToken()` safely appends tokens (e.g., `aria-describedby`) without duplicates.
+- `setAriaExpanded()` / `setAriaHidden()` normalize boolean ARIA states.
+
+### `styles.ts`
+
+Keeps DOM visibility and inert management consistent.
+
+- `setHiddenState()` syncs `hidden` and `aria-hidden`.
+- `setInert()` toggles the `inert` attribute while preserving author intent.
 
 ### `aria.ts`
 
@@ -90,7 +112,7 @@ This ensures no collisions and predictable initialization order.
    registerPattern("menu", "[data-automagica11y-menu]", initMenu);
    ```
 
-4. Use shared helpers (e.g., `getClassConfig()`, `applyClasses()`).
+4. Use shared helpers (e.g., `createClassToggler()`, `ensureId()`, `setHiddenState()`).
 5. Add examples and tests.
 6. Done.
 

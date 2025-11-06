@@ -1,5 +1,7 @@
-import { getClassConfig, applyClasses } from "@core/classes";
+import { createClassToggler } from "@core/classes";
+import { ensureId, appendToken } from "@core/attributes";
 import { dispatch } from "@core/events";
+import { setHiddenState } from "@core/styles";
 
 const HIDE_DELAY_MS = 100;
 
@@ -17,24 +19,17 @@ export function initTooltip(trigger: Element) {
   if (!target) return;
 
   // Ensure tooltip has a stable ID so aria-describedby can reference it.
-  if (!target.id) target.id = `automagica11y-tip-${crypto.randomUUID()}`;
+  ensureId(target, "automagica11y-tip");
 
   // Preserve any existing aria-describedby values and append the tooltip ID.
-  const describedBy = new Set(
-    (trigger.getAttribute("aria-describedby") ?? "")
-      .split(/\s+/)
-      .filter(Boolean)
-  );
-  describedBy.add(target.id);
-  trigger.setAttribute("aria-describedby", Array.from(describedBy).join(" "));
+  appendToken(trigger, "aria-describedby", target.id);
 
   // Baseline tooltip semantics.
   if (!target.hasAttribute("role")) target.setAttribute("role", "tooltip");
-  target.setAttribute("aria-hidden", "true");
-  target.hidden = true;
+  setHiddenState(target, true);
 
   // Snapshot class mappings. Tooltip does not apply default toggle classes.
-  const cfg = getClassConfig(trigger, { applyTriggerFallback: false });
+  const toggleClasses = createClassToggler(trigger, { applyTriggerFallback: false });
 
   let expanded = false;
   let pointerActive = false;
@@ -51,9 +46,8 @@ export function initTooltip(trigger: Element) {
   const setState = (open: boolean) => {
     if (expanded === open) return;
     expanded = open;
-    target.hidden = !open;
-    target.setAttribute("aria-hidden", open ? "false" : "true");
-    applyClasses(cfg, open, trigger, target);
+    setHiddenState(target, !open);
+    toggleClasses(open, target);
     dispatch(trigger, "automagica11y:toggle", { expanded: open, trigger, target });
   };
 

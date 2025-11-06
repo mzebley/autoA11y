@@ -83,3 +83,10 @@ export function applyClasses(cfg: A11yClassConfig, expanded: boolean, trigger: H
     if (add.length) target.classList.add(...add);
   }
 }
+
+export function createClassToggler(trigger: HTMLElement, options?: ClassConfigOptions) {
+  const cfg = getClassConfig(trigger, options);
+  return (expanded: boolean, target?: HTMLElement) => {
+    applyClasses(cfg, expanded, trigger, target);
+  };
+}

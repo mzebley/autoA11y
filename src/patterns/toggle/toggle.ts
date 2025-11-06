@@ -1,4 +1,6 @@
-import { getClassConfig, applyClasses } from "@core/classes";
+import { createClassToggler } from "@core/classes";
+import { ensureId, setAriaExpanded } from "@core/attributes";
+import { setHiddenState } from "@core/styles";
 
 /**
  * Hydrates a toggle trigger so it controls its target element with accessible defaults.
@@ -14,18 +16,15 @@ export function initToggle(trigger: Element) {
   const target = document.querySelector<HTMLElement>(targetSel);
   if (!target) return;
 
-  // Snapshot all class configuration from data attributes up front.
-  const cfg = getClassConfig(trigger);
-
   // Ensure both trigger and target have IDs so ARIA relationships can be wired reliably.
-  if (!trigger.id) trigger.id = `automagica11y-t-${crypto.randomUUID()}`;
-  if (!target.id) target.id = `automagica11y-p-${crypto.randomUUID()}`;
+  ensureId(trigger, "automagica11y-t");
+  ensureId(target, "automagica11y-p");
 
   // Establish the baseline ARIA contract and initial collapsed state.
   trigger.setAttribute("aria-controls", target.id);
-  trigger.setAttribute("aria-expanded", "false");
+  setAriaExpanded(trigger, false);
   target.setAttribute("aria-labelledby", trigger.id);
-  target.hidden = true;
+  setHiddenState(target, true);
 
   // Non-button triggers need button semantics and keyboard focusability.
   if (trigger.tagName !== "BUTTON") {
@@ -35,13 +34,14 @@ export function initToggle(trigger: Element) {
   }
 
   // Apply the initial class state so author-defined hooks reflect "closed".
-  applyClasses(cfg, false, trigger, target);
+  const applyClasses = createClassToggler(trigger);
+  applyClasses(false, target);
 
   // Centralized state setter keeps ARIA, classes, DOM visibility, and events in sync.
   const setState = (open: boolean) => {
-    trigger.setAttribute("aria-expanded", String(open));
-    target.hidden = !open;
-    applyClasses(cfg, open, trigger, target);
+    setAriaExpanded(trigger, open);
+    setHiddenState(target, !open);
+    applyClasses(open, target);
     trigger.dispatchEvent(new CustomEvent("automagica11y:toggle", { detail: { expanded: open, trigger, target } }));
   };
 

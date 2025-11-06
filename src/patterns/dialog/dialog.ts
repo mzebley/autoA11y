@@ -1,5 +1,7 @@
-import { getClassConfig, applyClasses } from "@core/classes";
+import { createClassToggler } from "@core/classes";
+import { ensureId, setAriaExpanded, setAriaHidden } from "@core/attributes";
 import { dispatch } from "@core/events";
+import { setHiddenState, setInert } from "@core/styles";
 
 type BackgroundSnapshot = {
   el: HTMLElement;
@@ -30,14 +32,13 @@ function ensureDialogController(target: HTMLElement): DialogController {
   const existing = controllers.get(target);
   if (existing) return existing;
 
-  if (!target.id) target.id = `automagica11y-dialog-${crypto.randomUUID()}`;
+  ensureId(target, "automagica11y-dialog");
   if (!target.hasAttribute("role")) target.setAttribute("role", "dialog");
   target.setAttribute("aria-modal", "true");
   if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
-  target.hidden = true;
-  target.setAttribute("aria-hidden", "true");
+  setHiddenState(target, true);
 
-  const configs = new Map<HTMLElement, ReturnType<typeof getClassConfig>>();
+  const classTogglers = new Map<HTMLElement, ReturnType<typeof createClassToggler>>();
   const triggers = new Set<HTMLElement>();
   const backgroundState: BackgroundSnapshot[] = [];
 
@@ -46,19 +47,18 @@ function ensureDialogController(target: HTMLElement): DialogController {
   let previousFocus: Element | null = null;
   let previousOverflow: string | null = null;
 
-  const getConfig = (trigger: HTMLElement) => {
-    let cfg = configs.get(trigger);
-    if (!cfg) {
-      cfg = getClassConfig(trigger);
-      configs.set(trigger, cfg);
+  const getClassToggle = (trigger: HTMLElement) => {
+    let toggler = classTogglers.get(trigger);
+    if (!toggler) {
+      toggler = createClassToggler(trigger);
+      classTogglers.set(trigger, toggler);
     }
-    return cfg;
+    return toggler;
   };
 
   const applyTriggerState = (trigger: HTMLElement, expanded: boolean) => {
-    const cfg = getConfig(trigger);
-    trigger.setAttribute("aria-expanded", expanded ? "true" : "false");
-    applyClasses(cfg, expanded, trigger, target);
+    setAriaExpanded(trigger, expanded);
+    getClassToggle(trigger)(expanded, target);
   };
 
   const focusableElements = () =>
@@ -127,8 +127,8 @@ function ensureDialogController(target: HTMLElement): DialogController {
         ariaHidden: el.getAttribute("aria-hidden"),
         inert: el.hasAttribute("inert")
       });
-      el.setAttribute("aria-hidden", "true");
-      if (!el.hasAttribute("inert")) el.setAttribute("inert", "");
+      setAriaHidden(el, true);
+      if (!el.hasAttribute("inert")) setInert(el, true);
     };
 
     const markSiblings = (node: HTMLElement | null) => {
@@ -155,7 +155,7 @@ function ensureDialogController(target: HTMLElement): DialogController {
     backgroundState.forEach(({ el, ariaHidden, inert }) => {
       if (ariaHidden === null) el.removeAttribute("aria-hidden");
       else el.setAttribute("aria-hidden", ariaHidden);
-      if (!inert) el.removeAttribute("inert");
+      if (!inert) setInert(el, false);
     });
     backgroundState.length = 0;
   };
@@ -212,8 +212,7 @@ function ensureDialogController(target: HTMLElement): DialogController {
     lockBackgroundScroll();
     inertBackground();
 
-    target.hidden = false;
-    target.setAttribute("aria-hidden", "false");
+    setHiddenState(target, false);
 
     window.setTimeout(() => focusFirstElement(), 0);
 
@@ -237,8 +236,7 @@ function ensureDialogController(target: HTMLElement): DialogController {
     activeTrigger = null;
     previousFocus = null;
 
-    target.hidden = true;
-    target.setAttribute("aria-hidden", "true");
+    setHiddenState(target, true);
 
     restoreBackground();
     restoreBackgroundScroll();
