@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>automagicA11y – Examples</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main id="main">
+    <h1>Examples</h1>
+    <p>
+      Explore accessible patterns and plugins wired with declarative data attributes.
+      Each page loads the compiled bundle to hydrate behavior and ARIA sync automatically.
+    </p>
+
+    <section class="card">
+      <h2>Patterns and Plugins</h2>
+      <div class="example-grid" id="example-grid" aria-label="Example list"></div>
+    </section>
+  </main>
+
+  <script src="./nav.js" defer></script>
+  <script>
+    // Build the grid using the central dataset from nav.js
+    document.addEventListener('DOMContentLoaded', () => {
+      const list = window.__AUTOMAGIC_EXAMPLES__ || [];
+      const grid = document.getElementById('example-grid');
+      if (!grid) return;
+      grid.innerHTML = list.map(({ file, title }) => `
+        <a class="example-card" href="./${file}">
+          <span class="example-card__title">${title}</span>
+          <span class="example-card__subtitle">Open ${title} example</span>
+        </a>
+      `).join('');
+    });
+  </script>
+</body>
+</html>
+
