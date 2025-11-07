@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
 
-const loadAnnounce = async () => import("../../src/patterns/announce/announce");
+const loadAnnounce = async () => import("../../src/plugins/announce/announce");
 
 const dispatchToggle = (trigger: HTMLElement, detail: Record<string, unknown>) => {
   trigger.dispatchEvent(

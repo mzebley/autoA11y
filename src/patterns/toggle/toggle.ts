@@ -1,6 +1,7 @@
 import { createClassToggler } from "@core/classes";
 import { ensureId, setAriaExpanded } from "@core/attributes";
 import { setHiddenState } from "@core/styles";
+import { dispatch } from "@core/events";
 
 const prefersReducedMotion = () =>
   typeof window !== "undefined" &&
@@ -21,21 +22,24 @@ export function initToggle(trigger: Element) {
   // Read the selector for the companion target and resolve it in the document.
   const targetSel = trigger.getAttribute("data-automagica11y-toggle");
   if (!targetSel) return;
-  const target = document.querySelector<HTMLElement>(targetSel);
-  if (!target) return;
+  const targetNodeList = document.querySelectorAll<HTMLElement>(targetSel);
+  const targets = Array.from(targetNodeList).filter((el): el is HTMLElement => !!el);
+  if (!targets.length) return;
   (
     trigger as HTMLElement & { __automagica11yInitialized?: boolean }
   ).__automagica11yInitialized = true;
 
   // Ensure both trigger and target have IDs so ARIA relationships can be wired reliably.
   ensureId(trigger, "automagica11y-t");
-  ensureId(target, "automagica11y-p");
+  targets.forEach((t, i) => ensureId(t, `automagica11y-p`));
 
-  // Establish the baseline ARIA contract and initial collapsed state.
-  trigger.setAttribute("aria-controls", target.id);
+  // Establish the baseline ARIA contract and initial collapsed state (supports multiple targets).
+  trigger.setAttribute("aria-controls", targets.map(t => t.id).join(" "));
   setAriaExpanded(trigger, false);
-  target.setAttribute("aria-labelledby", trigger.id);
-  setHiddenState(target, true);
+  targets.forEach((t) => {
+    t.setAttribute("aria-labelledby", trigger.id);
+    setHiddenState(t, true);
+  });
 
   const isNativeButton = trigger.tagName === "BUTTON";
   // Non-button triggers need button semantics and keyboard focusability.
@@ -49,7 +53,7 @@ export function initToggle(trigger: Element) {
 
   // Apply the initial class state so author-defined hooks reflect "closed".
   const applyClasses = createClassToggler(trigger);
-  applyClasses(false, target);
+  targets.forEach((t) => applyClasses(false, t));
 
   let cancelPendingOpenFrame: (() => void) | null = null;
   const clearPendingOpenFrame = () => {
@@ -87,16 +91,13 @@ export function initToggle(trigger: Element) {
     };
   };
 
-  const dispatchToggle = (expanded: boolean) => {
-    const evt = new CustomEvent("automagica11y:toggle", {
-      detail: { expanded, trigger, target },
-      bubbles: true,
-      cancelable: true,
-      composed: true,
-    });
-    trigger.dispatchEvent(evt);
-    return evt;
-  };
+  const dispatchToggle = (expanded: boolean) =>
+    dispatch(
+      trigger,
+      "automagica11y:toggle",
+      { expanded, trigger, target: targets[0], targets },
+      { cancelable: true }
+    );
 
   // Centralized state setter keeps ARIA, classes, DOM visibility, and events in sync.
   const setState = (open: boolean) => {
@@ -104,27 +105,46 @@ export function initToggle(trigger: Element) {
     clearPendingOpenFrame();
 
     if (!open) {
-      applyClasses(false, target);
+      targets.forEach((t) => applyClasses(false, t));
       // Allow plugins to cancel closing before we hide the target.
       const evt = dispatchToggle(false);
       if (evt.defaultPrevented) return;
-      setHiddenState(target, true);
+      targets.forEach((t) => setHiddenState(t, true));
+      // Notify observers that close completed locally.
+      dispatch(trigger, "automagica11y:toggle:closed", { trigger, target: targets[0], targets });
       return;
     }
 
-    setHiddenState(target, false);
+    targets.forEach((t) => setHiddenState(t, false));
     if (prefersReducedMotion()) {
       // Skip the double-rAF deferral when users prefer reduced motion.
-      applyClasses(true, target);
+      targets.forEach((t) => applyClasses(true, t));
     } else {
       cancelPendingOpenFrame = queueAfterPaint(() => {
         cancelPendingOpenFrame = null;
         // Flush layout so transitions see the pre-open styles before swapping classes.
-        void target.offsetWidth;
-        applyClasses(true, target);
+        void targets[0].offsetWidth;
+        targets.forEach((t) => applyClasses(true, t));
       });
     }
     dispatchToggle(true);
+    // Notify observers after open completes.
+    dispatch(trigger, "automagica11y:toggle:opened", { trigger, target: targets[0], targets });
+
+    // If grouped, close siblings in the same group.
+    const group = trigger.getAttribute("data-automagica11y-group");
+    if (group) {
+      const others = Array.from(
+        document.querySelectorAll<HTMLElement>(`[data-automagica11y-group]`)
+      ).filter((el) => el !== trigger && el.getAttribute("data-automagica11y-group") === group);
+      others.forEach((other) => {
+        const controller = (other as HTMLElement & { __automagica11ySetState?: (open: boolean) => void })
+          .__automagica11ySetState;
+        if (controller && other.getAttribute("aria-expanded") === "true") {
+          controller(false);
+        }
+      });
+    }
   };
 
   // Basic toggle helper reads existing ARIA state and flips it.
@@ -148,8 +168,11 @@ export function initToggle(trigger: Element) {
 
   // Announce readiness so plugins or host applications can hook into initialized toggles.
   trigger.dispatchEvent(
-    new CustomEvent("automagica11y:ready", { detail: { trigger, target } })
+    new CustomEvent("automagica11y:ready", { detail: { trigger, target: targets[0], targets } })
   );
+
+  // Expose a minimal controller for grouped interactions
+  (trigger as HTMLElement & { __automagica11ySetState?: (open: boolean) => void }).__automagica11ySetState = setState;
 
   return function destroy() {
     clearPendingOpenFrame();
@@ -158,5 +181,27 @@ export function initToggle(trigger: Element) {
     (
       trigger as HTMLElement & { __automagica11yInitialized?: boolean }
     ).__automagica11yInitialized = false;
+    delete (trigger as HTMLElement & { __automagica11ySetState?: (open: boolean) => void }).__automagica11ySetState;
   };
+}
+
+/** Return whether a hydrated toggle trigger is currently expanded. */
+export function isToggleOpen(trigger: HTMLElement): boolean {
+  return trigger.getAttribute("aria-expanded") === "true";
+}
+
+/** Resolve the target element controlled by a toggle trigger. */
+export function getToggleTarget(trigger: HTMLElement): HTMLElement | null {
+  const fromData = trigger.getAttribute("data-automagica11y-toggle");
+  if (fromData) {
+    const el = document.querySelector<HTMLElement>(fromData);
+    if (el) return el;
+  }
+  const id = trigger.getAttribute("aria-controls");
+  if (id) {
+    // if multiple, return the first
+    const firstId = id.trim().split(/\s+/)[0];
+    return document.getElementById(firstId);
+  }
+  return null;
 }

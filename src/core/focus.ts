@@ -21,6 +21,7 @@ function isVisible(element: HTMLElement) {
   return true;
 }
 
+/** Determine if an element is focusable considering visibility and ARIA. */
 export function isFocusable(element: HTMLElement) {
   if (element.hasAttribute("disabled")) return false;
   if (element.getAttribute("aria-hidden") === "true") return false;
@@ -29,6 +30,7 @@ export function isFocusable(element: HTMLElement) {
   return element.tabIndex >= 0;
 }
 
+/** Collect unique focusable elements within a given root (inclusive). */
 export function getFocusableIn(root: ParentNode | Element): HTMLElement[] {
   const result: HTMLElement[] = [];
 
@@ -49,11 +51,13 @@ export function getFocusableIn(root: ParentNode | Element): HTMLElement[] {
   return result;
 }
 
+/** Options for focusing elements with sensible defaults. */
 export interface FocusOptionsExtended {
   preventScroll?: boolean;
   preserveTabIndex?: boolean;
 }
 
+/** Focus an element, optionally preserving author `tabindex` after blur. */
 export function focusElement(element: HTMLElement, options: FocusOptionsExtended = {}) {
   const { preventScroll = true, preserveTabIndex = true } = options;
 
@@ -109,12 +113,14 @@ export function focusFirst(root: ParentNode | Element, options?: FocusOptionsExt
   return null;
 }
 
+/** Minimal focus trap contract used by modal/dialog flows. */
 export interface FocusTrap {
   focusFirst: () => void;
   handleFocusIn: (event: FocusEvent) => void;
   handleKeydown: (event: KeyboardEvent) => void;
 }
 
+/** Create a focus trap scoped to the container. */
 export function createFocusTrap(container: HTMLElement): FocusTrap {
   const getCycleList = () => {
     const list = getFocusableIn(container);
@@ -175,15 +181,21 @@ export function createFocusTrap(container: HTMLElement): FocusTrap {
   };
 }
 
+/** Handle to restore original tab order when custom ordering is applied. */
 export interface FocusOrderController {
   release: () => void;
 }
 
+/** Options that control the starting point for ordered focus. */
 export interface FocusOrderOptions {
   startIndex?: number;
   relativeTo?: HTMLElement | null;
 }
 
+/**
+ * Apply a stable tab order across a set of elements by assigning positive tabindex values.
+ * Returns a controller to restore the original state when no longer needed.
+ */
 export function applyFocusOrder(elements: HTMLElement[], options: FocusOrderOptions = {}): FocusOrderController | null {
   if (!elements.length) return null;
 

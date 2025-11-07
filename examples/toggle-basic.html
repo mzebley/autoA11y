@@ -54,3 +54,213 @@
   <script src="../dist/automagica11y.min.js"></script>
 </body>
 </html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>automagicA11y – Toggle / Disclosure</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <main>
+    <h1>Toggle / Disclosure</h1>
+    <p>Use <code>data-automagica11y-toggle</code> to connect a trigger to a target. The pattern wires ARIA, focusability, classes, and events for you.</p>
+
+    <section class="card">
+      <h2 id="details-heading">Basic disclosure</h2>
+      <p>The trigger points to the target by CSS selector. The target gets hidden by default and becomes visible when opened.</p>
+      <button
+        class="btn"
+        aria-labelledby="details-heading"
+        data-automagica11y-toggle="#details"
+        data-automagica11y-target-class-open="panel--visible"
+        data-automagica11y-target-class-closed="panel--hidden">
+        More details
+      </button>
+
+      <div id="details" class="panel">
+        <p>This content is revealed when the disclosure is open.</p>
+      </div>
+
+      <pre><code class="language-html">&lt;button
+  data-automagica11y-toggle="#details"
+  data-automagica11y-target-class-open="panel--visible"
+  data-automagica11y-target-class-closed="panel--hidden">
+  More details
+&lt;/button>
+
+&lt;div id="details" class="panel">
+  &lt;p>This content is revealed when the disclosure is open.&lt;/p>
+&lt;/div></code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Non-button trigger</h2>
+      <p>Not using a native button? The pattern adds button semantics and keyboard activation (Space/Enter) for you.</p>
+      <div
+        class="btn"
+        id="card-trigger"
+        data-automagica11y-toggle="#card-panel"
+        data-automagica11y-target-class-open="panel--visible"
+        data-automagica11y-target-class-closed="panel--hidden">
+        Card info
+      </div>
+      <div id="card-panel" class="panel" hidden>
+        <p>This region opens even though the trigger is a &lt;div&gt;.</p>
+      </div>
+
+      <pre><code class="language-html">&lt;div
+  class="btn"
+  data-automagica11y-toggle="#card-panel"
+  data-automagica11y-target-class-open="panel--visible"
+  data-automagica11y-target-class-closed="panel--hidden">
+  Card info
+&lt;/div></code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Event lifecycle + helpers</h2>
+      <p>The toggle dispatches a cancelable <code>automagica11y:toggle</code> event and fires <code>automagica11y:toggle:opened</code>/<code>automagica11y:toggle:closed</code> after local state changes. Helpers make it easy to query state and resolve targets.</p>
+
+      <button
+        id="life-trigger"
+        class="btn"
+        data-automagica11y-toggle="#life-panel"
+        data-automagica11y-trigger-class-open="automagic-toggle-open"
+        data-automagica11y-trigger-class-closed="automagic-toggle-closed">
+        Lifecycle sample (<span id="life-status">Closed</span>)
+      </button>
+      <div id="life-panel" class="panel" hidden>
+        <p>Open and close me, then check the log.</p>
+        <ul id="life-log" style="margin:0.5rem 0 0 1rem;"></ul>
+      </div>
+
+      <pre><code class="language-javascript">import { initNode, isToggleOpen, getToggleTarget } from "automagica11y";
+
+initNode(document);
+
+const t = document.getElementById("life-trigger");
+const status = document.getElementById("life-status");
+const log = document.getElementById("life-log");
+
+function update() {
+  status.textContent = isToggleOpen(t) ? "Open" : "Closed";
+}
+
+function addLog(evt) {
+  const li = document.createElement("li");
+  li.textContent = `${evt.type} → expanded=${evt.detail?.expanded}`;
+  log?.appendChild(li);
+}
+
+t?.addEventListener("automagica11y:toggle", addLog);
+
+t?.addEventListener("automagica11y:toggle:opened", () => {
+  update();
+  const target = getToggleTarget(t);
+  console.log("opened", { trigger: t, target });
+});
+
+t?.addEventListener("automagica11y:toggle:closed", () => {
+  update();
+});</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Accordion (grouped)</h2>
+      <p>Use <code>data-automagica11y-group</code> to create a mutually-exclusive group. Opening one item closes any other open item in the same group.</p>
+
+      <div class="card" style="padding:1rem; border-color:#e6ebf7;">
+        <button
+          class="btn"
+          data-automagica11y-group="faq"
+          data-automagica11y-toggle="#acc-a"
+          data-automagica11y-trigger-class-open="automagic-toggle-open"
+          data-automagica11y-trigger-class-closed="automagic-toggle-closed">
+          What is automagicA11y?
+        </button>
+        <div id="acc-a" class="panel" hidden>
+          It’s a tiny toolkit that wires accessible patterns via data attributes.
+        </div>
+
+        <button
+          class="btn"
+          style="margin-top:0.5rem;"
+          data-automagica11y-group="faq"
+          data-automagica11y-toggle="#acc-b"
+          data-automagica11y-trigger-class-open="automagic-toggle-open"
+          data-automagica11y-trigger-class-closed="automagic-toggle-closed">
+          Does it support accordions?
+        </button>
+        <div id="acc-b" class="panel" hidden>
+          Yes. Items with the same <code>data-automagica11y-group</code> will close siblings on open.
+        </div>
+
+        <button
+          class="btn"
+          style="margin-top:0.5rem;"
+          data-automagica11y-group="faq"
+          data-automagica11y-toggle="#acc-c"
+          data-automagica11y-trigger-class-open="automagic-toggle-open"
+          data-automagica11y-trigger-class-closed="automagic-toggle-closed">
+          Can one trigger control multiple targets?
+        </button>
+        <div id="acc-c" class="panel" hidden>
+          Absolutely. Provide a comma-separated selector list. Both panels open/close together.
+          <div id="acc-c-aux" class="panel" style="margin-top:0.5rem;">Aux content controlled by the same trigger.</div>
+        </div>
+      </div>
+
+      <pre><code class="language-html">&lt;button data-automagica11y-group="faq" data-automagica11y-toggle="#acc-a">Item A&lt;/button>
+&lt;div id="acc-a" hidden>…&lt;/div>
+
+&lt;button data-automagica11y-group="faq" data-automagica11y-toggle="#acc-b">Item B&lt;/button>
+&lt;div id="acc-b" hidden>…&lt;/div>
+
+&lt;button data-automagica11y-group="faq" data-automagica11y-toggle="#acc-c, #acc-c-aux">Item C&lt;/button>
+&lt;div id="acc-c" hidden>…&lt;/div>
+&lt;div id="acc-c-aux" hidden>…&lt;/div></code></pre>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+  <!-- Use ESM build for convenience in examples -->
+  <script type="module">
+    import { initNode, isToggleOpen, getToggleTarget } from "../dist/automagica11y.esm.js";
+    initNode(document);
+
+    const t = document.getElementById("life-trigger");
+    const status = document.getElementById("life-status");
+    const log = document.getElementById("life-log");
+
+    const update = () => {
+      if (t && status) status.textContent = isToggleOpen(t) ? "Open" : "Closed";
+    };
+    const addLog = (evt) => {
+      if (!log) return;
+      const li = document.createElement("li");
+      const expanded = evt.detail && typeof evt.detail.expanded === "boolean" ? evt.detail.expanded : undefined;
+      li.textContent = `${evt.type}${expanded !== undefined ? ` → expanded=${expanded}` : ""}`;
+      log.appendChild(li);
+    };
+
+    t?.addEventListener("automagica11y:toggle", addLog);
+    t?.addEventListener("automagica11y:toggle:opened", () => {
+      update();
+      const target = t ? getToggleTarget(t) : null;
+      console.debug("opened", { trigger: t, target });
+    });
+    t?.addEventListener("automagica11y:toggle:closed", update);
+
+    // Wire multi-target example inside the accordion
+    const accMulti = document.querySelector('[data-automagica11y-toggle="#acc-c, #acc-c-aux"]');
+    if (accMulti) {
+      // nothing extra needed; comma-separated selector is handled by the pattern
+    }
+  </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
-import { initToggle } from "../../src/patterns/toggle/toggle";
+import { initToggle, isToggleOpen, getToggleTarget } from "../../src/patterns/toggle/toggle";
 
 describe("toggle pattern", () => {
   beforeEach(() => {
@@ -316,5 +316,86 @@ describe("toggle pattern", () => {
     `;
     const t = document.getElementById("t") as HTMLElement;
     expect(() => initToggle(t)).not.toThrow();
+  });
+
+  it("exposes helpers to check state and resolve target", () => {
+    document.body.innerHTML = `
+      <button id="t" data-automagica11y-toggle="#p"></button>
+      <div id="p">Panel</div>
+    `;
+    const t = document.getElementById("t") as HTMLElement;
+    const p = document.getElementById("p") as HTMLElement;
+    initToggle(t);
+    expect(isToggleOpen(t)).toBe(false);
+    expect(getToggleTarget(t)).toBe(p);
+    t.click();
+    expect(isToggleOpen(t)).toBe(true);
+  });
+
+  it("emits opened/closed events when state changes locally", () => {
+    document.body.innerHTML = `
+      <button id="t" data-automagica11y-toggle="#p"></button>
+      <div id="p">Panel</div>
+    `;
+    const t = document.getElementById("t") as HTMLElement;
+    const opened = vi.fn();
+    const closed = vi.fn();
+    t.addEventListener("automagica11y:toggle:opened", opened);
+    t.addEventListener("automagica11y:toggle:closed", closed);
+    initToggle(t);
+    t.click(); // open
+    t.click(); // close (no plugin cancelling)
+    expect(opened).toHaveBeenCalledTimes(1);
+    expect(closed).toHaveBeenCalledTimes(1);
+  });
+
+  it("supports multiple targets from a single trigger", () => {
+    document.body.innerHTML = `
+      <button id="t" data-automagica11y-toggle="#p1, #p2"></button>
+      <div id="p1"></div>
+      <div id="p2"></div>
+    `;
+    const t = document.getElementById("t") as HTMLElement;
+    const p1 = document.getElementById("p1") as HTMLElement;
+    const p2 = document.getElementById("p2") as HTMLElement;
+    initToggle(t);
+    // aria-controls should list both ids
+    const controls = t.getAttribute("aria-controls")!;
+    expect(controls.split(/\s+/).sort()).toEqual(["p1", "p2"].sort());
+    // open
+    t.click();
+    expect(p1.hidden).toBe(false);
+    expect(p2.hidden).toBe(false);
+    // close
+    t.click();
+    expect(p1.hidden).toBe(true);
+    expect(p2.hidden).toBe(true);
+  });
+
+  it("closes siblings within the same data-automagica11y-group on open (accordion)", () => {
+    document.body.innerHTML = `
+      <button id="a" data-automagica11y-group="g" data-automagica11y-toggle="#pa"></button>
+      <div id="pa"></div>
+      <button id="b" data-automagica11y-group="g" data-automagica11y-toggle="#pb"></button>
+      <div id="pb"></div>
+    `;
+    const a = document.getElementById("a") as HTMLElement;
+    const b = document.getElementById("b") as HTMLElement;
+    const pa = document.getElementById("pa") as HTMLElement;
+    const pb = document.getElementById("pb") as HTMLElement;
+    initToggle(a);
+    initToggle(b);
+
+    // open A
+    a.click();
+    expect(a.getAttribute("aria-expanded")).toBe("true");
+    expect(pa.hidden).toBe(false);
+
+    // open B, should close A
+    b.click();
+    expect(b.getAttribute("aria-expanded")).toBe("true");
+    expect(pb.hidden).toBe(false);
+    expect(a.getAttribute("aria-expanded")).toBe("false");
+    expect(pa.hidden).toBe(true);
   });
 });

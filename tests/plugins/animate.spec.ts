@@ -18,7 +18,7 @@ const setupPlugin = async () => {
       }) as CSSStyleDeclaration
   );
 
-  const mod = await import("../../src/plugins/animate");
+  const mod = await import("../../src/plugins/animate/animate");
   mod.registerAnimatePlugin();
 
   return () => {

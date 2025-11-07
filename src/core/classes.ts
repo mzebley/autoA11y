@@ -24,11 +24,13 @@ const stateKeywords = [
 ] as const;
 type StateKeyword = typeof stateKeywords[number];
 
+/** Parsed class hooks for trigger and target across true/false states. */
 export interface A11yClassConfig {
   trigger: { true: string[]; false: string[] };
   target:  { true: string[]; false: string[] };
 }
 
+/** Options that influence default class application behavior. */
 export interface ClassConfigOptions {
   /**
    * Default trigger classes (`automagic-toggle-*`) are only desirable for patterns that expose
@@ -50,6 +52,7 @@ function parseClassList(val: string | null): string[] {
   return val.trim().split(/\s+/).filter(Boolean);
 }
 
+/** Read class hook configuration from a trigger's data attributes. */
 export function getClassConfig(el: HTMLElement, options: ClassConfigOptions = {}): A11yClassConfig {
   const cfg: A11yClassConfig = { trigger: { true: [], false: [] }, target: { true: [], false: [] } };
   sides.forEach((side: Side) => {
@@ -84,6 +87,7 @@ export function applyClasses(cfg: A11yClassConfig, expanded: boolean, trigger: H
   }
 }
 
+/** Create a reusable function that applies class hooks for a given trigger/target pair. */
 export function createClassToggler(trigger: HTMLElement, options?: ClassConfigOptions) {
   const cfg = getClassConfig(trigger, options);
   return (expanded: boolean, target?: HTMLElement) => {
