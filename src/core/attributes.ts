@@ -1,10 +1,12 @@
 /** Ensure `el.id` is present; assign with the given prefix if absent. */
 export function ensureId(el: HTMLElement, prefix: string) {
   if (!el.id) {
-    const uuid =
-      typeof crypto !== "undefined" && typeof (crypto as any).randomUUID === "function"
-        ? (crypto as any).randomUUID()
-        : Math.random().toString(36).slice(2);
+    const hasUUID =
+      typeof globalThis.crypto !== "undefined" &&
+      typeof (globalThis.crypto as Crypto).randomUUID === "function";
+    const uuid = hasUUID
+      ? (globalThis.crypto as Crypto).randomUUID()
+      : Math.random().toString(36).slice(2);
     el.id = `${prefix}-${uuid}`;
   }
   return el.id;

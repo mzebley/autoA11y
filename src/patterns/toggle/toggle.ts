@@ -31,7 +31,7 @@ export function initToggle(trigger: Element) {
 
   // Ensure both trigger and target have IDs so ARIA relationships can be wired reliably.
   ensureId(trigger, "automagica11y-t");
-  targets.forEach((t, i) => ensureId(t, `automagica11y-p`));
+  targets.forEach((t) => ensureId(t, `automagica11y-p`));
 
   // Establish the baseline ARIA contract and initial collapsed state (supports multiple targets).
   trigger.setAttribute("aria-controls", targets.map(t => t.id).join(" "));
