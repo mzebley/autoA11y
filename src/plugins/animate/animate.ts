@@ -58,7 +58,7 @@ function removeAnimatingClasses(
   element: HTMLElement,
   classes?: string[] | null
 ) {
-  if (classes?.length) {
+  if (Array.isArray(classes) && classes.length > 0) {
     element.classList.remove(...classes);
     if (!classes.includes(DEFAULT_ANIMATION_CLASS)) {
       element.classList.remove(DEFAULT_ANIMATION_CLASS);
@@ -93,7 +93,7 @@ const toMilliseconds = (value: CSSNumberish | null | undefined) => {
 function getDuration(el: HTMLElement) {
   const style = getComputedStyle(el);
   const toMs = (token: string) => {
-    if (!token) return 0;
+    if (token === "") return 0;
     const value = parseFloat(token);
     if (Number.isNaN(value)) return 0;
     return token.trim().toLowerCase().endsWith("ms") ? value : value * 1000;
@@ -108,14 +108,14 @@ function getDuration(el: HTMLElement) {
       .split(",")
       .map((token) => token.trim().toLowerCase())
       .map((token) => {
-        if (!token || token === "initial" || token === "inherit") return 1;
+        if (token === "" || token === "initial" || token === "inherit") return 1;
         if (token === "infinite") return 1;
         const parsed = parseFloat(token);
         return Number.isNaN(parsed) || parsed <= 0 ? 1 : parsed;
       });
-  const durations = parseTimeList(style.transitionDuration);
-  const delays = parseTimeList(style.transitionDelay);
-  const properties = style.transitionProperty
+  const durations = parseTimeList(String((style as any).transitionDuration || ""));
+  const delays = parseTimeList(String((style as any).transitionDelay || ""));
+  const properties = String((style as any).transitionProperty || "")
     .split(",")
     .map((token) => token.trim().toLowerCase())
     .filter(Boolean);
@@ -128,9 +128,9 @@ function getDuration(el: HTMLElement) {
 
   let transitionTotal = 0;
   for (let i = 0; i < transitionCount; i += 1) {
-    const duration = durations.length ? durations[i % durations.length] : 0;
-    const delay = delays.length ? delays[i % delays.length] : 0;
-    const property = properties.length
+    const duration = durations.length > 0 ? durations[i % durations.length] : 0;
+    const delay = delays.length > 0 ? delays[i % delays.length] : 0;
+    const property = properties.length > 0
       ? properties[i % properties.length]
       : "all";
     if (property === "none") continue;
@@ -138,11 +138,9 @@ function getDuration(el: HTMLElement) {
     transitionTotal = Math.max(transitionTotal, total);
   }
 
-  const animationDurations = parseTimeList(style.animationDuration);
-  const animationDelays = parseTimeList(style.animationDelay);
-  const animationIterations = parseIterationList(
-    style.animationIterationCount
-  );
+  const animationDurations = parseTimeList(String((style as any).animationDuration || ""));
+  const animationDelays = parseTimeList(String((style as any).animationDelay || ""));
+  const animationIterations = parseIterationList(String((style as any).animationIterationCount || ""));
   const animationCount = Math.max(
     animationDurations.length,
     animationDelays.length,
@@ -151,13 +149,13 @@ function getDuration(el: HTMLElement) {
 
   let animationTotal = 0;
   for (let i = 0; i < animationCount; i += 1) {
-    const duration = animationDurations.length
+    const duration = animationDurations.length > 0
       ? animationDurations[i % animationDurations.length]
       : 0;
-    const delay = animationDelays.length
+    const delay = animationDelays.length > 0
       ? animationDelays[i % animationDelays.length]
       : 0;
-    const iterations = animationIterations.length
+    const iterations = animationIterations.length > 0
       ? animationIterations[i % animationIterations.length]
       : 1;
     const totalAnim = Math.max(0, duration * iterations + delay);
@@ -165,10 +163,10 @@ function getDuration(el: HTMLElement) {
   }
 
   // If all animations are paused, they will not complete; treat as zero for fallback purposes.
-  const playStates = style.animationPlayState
-    ? style.animationPlayState.split(",").map((s) => s.trim().toLowerCase())
+  const playStates = String((style as any).animationPlayState || "") !== ""
+    ? String((style as any).animationPlayState || "").split(",").map((s) => s.trim().toLowerCase())
     : [];
-  if (playStates.length && playStates.every((s) => s === "paused")) {
+  if (playStates.length > 0 && playStates.every((s) => s === "paused")) {
     animationTotal = 0;
   }
 
@@ -203,7 +201,7 @@ function watchAnimation(element: HTMLElement, done: () => void) {
 
   const consumeRunAhead = (key: string) => {
     const count = transitionRunAhead.get(key);
-    if (!count) return false;
+    if (typeof count !== "number" || count === 0) return false;
     if (count === 1) transitionRunAhead.delete(key);
     else transitionRunAhead.set(key, count - 1);
     return true;
@@ -211,14 +209,14 @@ function watchAnimation(element: HTMLElement, done: () => void) {
 
   const handleTransitionRun = (event: TransitionEvent) => {
     if (event.target !== element) return;
-    const key = event.propertyName || "__all";
+    const key = event.propertyName === "" ? "__all" : event.propertyName;
     trackRunAhead(key);
     activeTransitions += 1;
   };
 
   const handleTransitionStart = (event: TransitionEvent) => {
     if (event.target !== element) return;
-    const key = event.propertyName || "__all";
+    const key = event.propertyName === "" ? "__all" : event.propertyName;
     if (consumeRunAhead(key)) return;
     activeTransitions += 1;
   };
@@ -271,7 +269,7 @@ function watchAnimation(element: HTMLElement, done: () => void) {
   let fallbackDuration = getDuration(element);
   if (typeof element.getAnimations === "function") {
     const animations = element.getAnimations({ subtree: false });
-    if (animations.length) {
+    if (animations.length > 0) {
       const animationEndTime = animations.reduce((max, animation) => {
         const timing = animation.effect?.getComputedTiming();
         const endTime = toMilliseconds(timing?.endTime);
@@ -305,10 +303,10 @@ export function registerAnimatePlugin() {
       if (!trigger || !target) return;
 
       // Already handled once after animation -> let it bubble through.
-      if (detail?.__automagica11yAnimateProcessed) return;
+      if (typeof detail !== "undefined" && detail.__automagica11yAnimateProcessed === true) return;
 
       const animateAttr = trigger.getAttribute("data-automagica11y-animate");
-      if (!animateAttr) return;
+      if (animateAttr === null || animateAttr === "") return;
       const attr = animateAttr.trim();
       // Element used for class manipulation (defaults to target)
       let elForClasses: HTMLElement = target;
@@ -331,23 +329,25 @@ export function registerAnimatePlugin() {
         }
       }
 
-      if (detail?.expanded) {
+      if (typeof detail !== "undefined" && detail.expanded === true) {
         const pendingClose = pending.get(target);
-        pendingClose?.cleanup();
-        pending.delete(target);
-        elForClasses.style.removeProperty("--automagica11y-animating");
-        removeAnimatingClasses(elForClasses, pendingClose?.classes);
-        if (pendingClose?.watched && pendingClose.watched !== elForClasses) {
-          pendingClose.watched.style.removeProperty("--automagica11y-animating");
-          // Only remove the default animating class on the watched element
-          pendingClose.watched.classList.remove(DEFAULT_ANIMATION_CLASS);
+        if (pendingClose) {
+          pendingClose.cleanup();
+          pending.delete(target);
+          elForClasses.style.removeProperty("--automagica11y-animating");
+          removeAnimatingClasses(elForClasses, pendingClose.classes);
+          if (pendingClose.watched !== elForClasses) {
+            pendingClose.watched.style.removeProperty("--automagica11y-animating");
+            // Only remove the default animating class on the watched element
+            pendingClose.watched.classList.remove(DEFAULT_ANIMATION_CLASS);
+          }
         }
         return;
       }
 
       // Prevent the original close event from reaching the toggle handler.
       event.stopImmediatePropagation();
-      event.preventDefault?.();
+      event.preventDefault();
 
       const existingPending = pending.get(target);
       if (existingPending) {
@@ -381,7 +381,7 @@ export function registerAnimatePlugin() {
       }
 
       const openClasses = getOpenClasses(animatedSide, trigger, target);
-      if (openClasses.length) elForClasses.classList.remove(...openClasses);
+      if (openClasses.length > 0) elForClasses.classList.remove(...openClasses);
       // Force layout so class changes are acknowledged before closing styles.
       void elForClasses.offsetWidth;
 
@@ -406,12 +406,12 @@ export function registerAnimatePlugin() {
           window.cancelAnimationFrame(rafId);
           rafId = null;
         }
-        cancelWatch?.();
+        if (cancelWatch) cancelWatch();
         cancelWatch = null;
         pending.delete(target);
-        revertHidden?.();
+        if (revertHidden) revertHidden();
         elForClasses.style.removeProperty("--automagica11y-animating");
-        if (!appliedClosingClasses || appliedClosingClasses.includes(DEFAULT_ANIMATION_CLASS)) {
+        if (appliedClosingClasses.includes(DEFAULT_ANIMATION_CLASS)) {
           removeAnimatingClasses(elForClasses, appliedClosingClasses);
         }
         if (watched !== elForClasses) {

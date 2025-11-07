@@ -124,6 +124,52 @@ If no custom trigger classes are defined, automagicA11y falls back to `automagic
 - Long-press (~550&nbsp;ms) opens the tooltip on touch devices and keeps it visible until dismissed.
 - Tooltips emit the shared `automagica11y:ready`/`automagica11y:toggle` events so announce or custom plugins can react.
 
+### Popover
+
+#### Minimum viable example
+
+```html
+<button
+  data-automagica11y-popover="#profile-popover"
+  data-automagica11y-target-class-open="popover-panel--visible">
+  Manage profile
+</button>
+
+<div id="profile-popover" class="popover-panel" hidden>
+  <p>Quick actions</p>
+  <button data-automagica11y-popover-dismiss type="button">Done</button>
+  <!-- CSS can read data-automagica11y-popover-placement for arrows/offsets -->
+</div>
+```
+
+#### What happens automatically
+
+- Adds `aria-controls`, `aria-haspopup="dialog"`, and `aria-expanded` to the trigger.
+- Hides the panel by default and mirrors visibility to `aria-hidden`.
+- Resolves a safe placement and flips if the preferred side would overflow the viewport. Cross‑axis guards prevent clipping near edges.
+- Emits namespaced events: `automagica11y:popover:ready`, `:toggle`, `:shown`, `:hidden`, `:dismissed`, and `:placement`.
+- Returns focus to the trigger before applying `hidden`/`aria-hidden` on close to avoid a11y warnings.
+
+#### Sticky example
+
+```html
+<button
+  data-automagica11y-popover="#sticky-popover"
+  data-automagica11y-popover-outside-dismiss="false"
+  data-automagica11y-popover-scroll-dismiss="false"
+  data-automagica11y-target-class-open="popover-panel--visible">
+  Sticky panel
+</button>
+<div id="sticky-popover" class="popover-panel" hidden>
+  <p>Stays open until Escape or dismiss.</p>
+  <a href="#" data-automagica11y-popover-dismiss>Close</a>
+  <!-- Placement reflected via data-automagica11y-popover-placement -->
+  <!-- Focus returns to the trigger on close -->
+</div>
+```
+
+---
+
 ### Dialog
 
 #### Minimum viable example

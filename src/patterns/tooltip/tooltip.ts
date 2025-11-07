@@ -2,7 +2,8 @@ import { createClassToggler } from "@core/classes";
 import { ensureId, appendToken } from "@core/attributes";
 import { dispatch } from "@core/events";
 import { setHiddenState } from "@core/styles";
-import { resolvePlacement, PreferredPlacement, TooltipPlacement } from "./placement";
+import { resolvePlacement } from "./placement";
+import type { PreferredPlacement, TooltipPlacement } from "./placement";
 
 const DEFAULT_CLOSE_DELAY_MS = 100;
 const LONG_PRESS_DELAY_MS = 550;

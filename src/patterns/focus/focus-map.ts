@@ -4,9 +4,9 @@ type Cleanup = () => void;
 const releases = new WeakMap<HTMLElement, Cleanup>();
 
 function parseSelectors(value: string | null): string[] {
-  if (!value) return [];
+  if (value === null || value === "") return [];
   const trimmed = value.trim();
-  if (!trimmed) return [];
+  if (trimmed.length === 0) return [];
   if (trimmed.startsWith("[")) {
     try {
       const parsed = JSON.parse(trimmed);
@@ -23,7 +23,7 @@ function parseSelectors(value: string | null): string[] {
 export function initFocusMap(node: Element) {
   if (!(node instanceof HTMLElement)) return;
   const selectors = parseSelectors(node.getAttribute("data-automagica11y-focus-map"));
-  if (!selectors.length) {
+  if (selectors.length === 0) {
     releases.get(node)?.();
     releases.delete(node);
     return;
@@ -64,7 +64,7 @@ export function initFocusMap(node: Element) {
     });
   });
 
-  if (!ordered.length) return;
+  if (ordered.length === 0) return;
 
   releases.get(node)?.();
 
@@ -129,9 +129,12 @@ export function initFocusMap(node: Element) {
 
   releases.set(node, () => {
     elementHandlers.forEach((handler, element) => element.removeEventListener("keydown", handler));
-    focusAnchor?.removeEventListener("keydown", handleAnchorKeydown);
-    focusAnchor?.removeEventListener("focus", handleAnchorFocus);
-    if (anchorOriginalTabIndex === null) focusAnchor?.removeAttribute("tabindex");
-    else focusAnchor?.setAttribute("tabindex", anchorOriginalTabIndex);
+    const fa = focusAnchor;
+    if (fa instanceof HTMLElement) {
+      fa.removeEventListener("keydown", handleAnchorKeydown);
+      fa.removeEventListener("focus", handleAnchorFocus);
+      if (anchorOriginalTabIndex === null) fa.removeAttribute("tabindex");
+      else fa.setAttribute("tabindex", anchorOriginalTabIndex);
+    }
   });
 }

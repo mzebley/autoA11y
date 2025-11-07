@@ -5,7 +5,8 @@ import { dispatch } from "@core/events";
 
 const prefersReducedMotion = () =>
   typeof window !== "undefined" &&
-  window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true;
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches === true;
 
 /**
  * Hydrates a toggle trigger so it controls its target element with accessible defaults.
@@ -21,10 +22,10 @@ export function initToggle(trigger: Element) {
 
   // Read the selector for the companion target and resolve it in the document.
   const targetSel = trigger.getAttribute("data-automagica11y-toggle");
-  if (!targetSel) return;
+  if (targetSel === null || targetSel === "") return;
   const targetNodeList = document.querySelectorAll<HTMLElement>(targetSel);
-  const targets = Array.from(targetNodeList).filter((el): el is HTMLElement => !!el);
-  if (!targets.length) return;
+  const targets = Array.from(targetNodeList).filter((el): el is HTMLElement => el instanceof HTMLElement);
+  if (targets.length === 0) return;
   (
     trigger as HTMLElement & { __automagica11yInitialized?: boolean }
   ).__automagica11yInitialized = true;
@@ -47,7 +48,7 @@ export function initToggle(trigger: Element) {
     if (!trigger.hasAttribute("role")) trigger.setAttribute("role", "button");
     if (!trigger.hasAttribute("tabindex"))
       (trigger as HTMLElement).tabIndex = 0;
-    if (!(trigger as HTMLElement).style.cursor)
+    if ((trigger as HTMLElement).style.cursor === "")
       (trigger as HTMLElement).style.cursor = "pointer";
   }
 
@@ -81,7 +82,7 @@ export function initToggle(trigger: Element) {
       });
       return cancel;
     }
-    const timeoutId = globalThis.setTimeout?.(callback, 32) ?? setTimeout(callback, 32);
+    const timeoutId = setTimeout(callback, 32);
     return () => {
       if (typeof globalThis.clearTimeout === "function") {
         globalThis.clearTimeout(timeoutId);

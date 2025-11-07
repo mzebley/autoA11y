@@ -22,9 +22,14 @@ const touchTemplate = `
 `;
 
 function createPointerEvent(type: string, pointerType: string = "mouse") {
-  const event = new Event(type, { bubbles: true, cancelable: true });
-  (event as PointerEvent).pointerType = pointerType;
-  return event as PointerEvent;
+  const evt = new Event(type, { bubbles: true, cancelable: true });
+  const event = evt as unknown as PointerEvent;
+  try {
+    Object.defineProperty(event, "pointerType", { value: pointerType });
+  } catch {
+    // ignore in environments where defineProperty is restricted
+  }
+  return event;
 }
 
 describe("tooltip pattern", () => {

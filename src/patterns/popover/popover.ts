@@ -2,7 +2,9 @@ import { createClassToggler } from "@core/classes";
 import { ensureId, appendToken } from "@core/attributes";
 import { dispatch } from "@core/events";
 import { setHiddenState } from "@core/styles";
-import { resolveAnchoredPlacement, PreferredAnchoredPlacement } from "@core/placement";
+import { focusElement } from "@core/focus";
+import { resolveAnchoredPlacement } from "@core/placement";
+import type { PreferredAnchoredPlacement } from "@core/placement";
 
 const PLACEMENT_ATTRIBUTE = "data-automagica11y-popover-placement";
 const OUTSIDE_DISMISS_ATTRIBUTE = "data-automagica11y-popover-outside-dismiss";
@@ -109,26 +111,30 @@ export function initPopover(node: Element) {
   const target = document.querySelector<HTMLElement>(selector);
   if (!target) return;
 
-  ensureId(target, "automagica11y-popover");
-  appendToken(node, "aria-controls", target.id);
-  if (!node.hasAttribute("aria-haspopup")) {
-    node.setAttribute("aria-haspopup", "dialog");
+  // Create local non-null aliases to maintain narrowing inside closures.
+  const trigger = node as HTMLElement;
+  const panel = target as HTMLElement;
+
+  ensureId(panel, "automagica11y-popover");
+  appendToken(trigger, "aria-controls", panel.id);
+  if (!trigger.hasAttribute("aria-haspopup")) {
+    trigger.setAttribute("aria-haspopup", "dialog");
   }
 
-  setHiddenState(target, true);
-  node.setAttribute("aria-expanded", "false");
+  setHiddenState(panel, true);
+  trigger.setAttribute("aria-expanded", "false");
 
-  const toggleClasses = createClassToggler(node);
+  const toggleClasses = createClassToggler(trigger);
 
   const outsideDismissEnabled = parseBooleanAttribute(node, OUTSIDE_DISMISS_ATTRIBUTE, DEFAULT_OUTSIDE_DISMISS);
   const scrollDismissEnabled = parseBooleanAttribute(node, SCROLL_DISMISS_ATTRIBUTE, DEFAULT_SCROLL_DISMISS);
   const scrollThreshold = parseScrollDistance(node);
   const preferredPlacement = parsePreferredPlacement(node.getAttribute(POSITION_ATTRIBUTE));
 
-  const dismissControls = Array.from(target.querySelectorAll<HTMLElement>(DISMISS_QUERY));
+  const dismissControls = Array.from(panel.querySelectorAll<HTMLElement>(DISMISS_QUERY));
   dismissControls.forEach(ensureButtonType);
 
-  const readyDetail = { trigger: node, target };
+  const readyDetail = { trigger, target: panel };
 
   let expanded = false;
   let scrollOriginX = 0;
@@ -175,27 +181,39 @@ export function initPopover(node: Element) {
   function setState(open: boolean, reason: PopoverReason) {
     if (expanded === open) {
       if (!open) {
-        emitDismiss(node, target, reason);
+        emitDismiss(trigger, panel, reason);
       }
       return;
     }
     expanded = open;
-    node.setAttribute("aria-expanded", open ? "true" : "false");
-    setHiddenState(target, !open);
-    toggleClasses(open, target);
+    trigger.setAttribute("aria-expanded", open ? "true" : "false");
+
+    // When closing, ensure focus is never left inside a region that
+    // is about to be hidden/aria-hidden. This avoids accessibility
+    // warnings and keeps keyboard users oriented.
+    if (!open) {
+      const active = document.activeElement as HTMLElement | null;
+      if (active && panel.contains(active)) {
+        // Return focus to the trigger before we hide the panel.
+        focusElement(trigger);
+      }
+    }
+
+    setHiddenState(panel, !open);
+    toggleClasses(open, panel);
 
     if (open) {
-      const placement = resolveAnchoredPlacement(node, target, preferredPlacement);
-      setPlacementAttribute(target, placement);
-      emitPlacement(node, target, placement);
+      const placement = resolveAnchoredPlacement(trigger, panel, preferredPlacement);
+      setPlacementAttribute(panel, placement);
+      emitPlacement(trigger, panel, placement);
       attachForOpen();
     } else {
       detachAll();
-      emitDismiss(node, target, reason);
+      emitDismiss(trigger, panel, reason);
     }
 
-    emitToggle(node, target, open, reason);
-    emitVisibility(node, target, open, reason);
+    emitToggle(trigger, panel, open, reason);
+    emitVisibility(trigger, panel, open, reason);
   }
 
   function openPopover(reason: PopoverReason) {
@@ -217,7 +235,7 @@ export function initPopover(node: Element) {
   function handleOutsidePointer(event: PointerEvent) {
     const eventTarget = event.target as Node | null;
     if (!eventTarget) return;
-    if (node.contains(eventTarget) || target.contains(eventTarget)) return;
+    if (trigger.contains(eventTarget) || panel.contains(eventTarget)) return;
     closePopover("outside");
   }
 
@@ -237,12 +255,12 @@ export function initPopover(node: Element) {
     }
   }
 
-  node.addEventListener("click", (event) => {
+  trigger.addEventListener("click", (event) => {
     event.preventDefault();
     togglePopover();
   });
 
-  node.addEventListener("keydown", (event) => {
+  trigger.addEventListener("keydown", (event) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       togglePopover();
@@ -263,6 +281,6 @@ export function initPopover(node: Element) {
     });
   });
 
-  emitVisibility(node, target, false, "initial");
-  dispatch(node, "automagica11y:popover:ready", readyDetail);
+  emitVisibility(trigger, panel, false, "initial");
+  dispatch(trigger, "automagica11y:popover:ready", readyDetail);
 }

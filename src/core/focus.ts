@@ -44,9 +44,9 @@ export function getFocusableIn(root: ParentNode | Element): HTMLElement[] {
     pushIfFocusable(root);
   }
 
-  if ("querySelectorAll" in root) {
-    root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR).forEach(pushIfFocusable);
-  }
+  (root as ParentNode)
+    .querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+    .forEach((el) => pushIfFocusable(el));
 
   return result;
 }
@@ -102,7 +102,7 @@ function preserveTabIndexFn(element: HTMLElement) {
 export function focusFirst(root: ParentNode | Element, options?: FocusOptionsExtended) {
   const focusables = getFocusableIn(root);
   const first = focusables[0];
-  if (first) {
+  if (typeof first !== "undefined") {
     focusElement(first, options);
     return first;
   }
@@ -132,7 +132,7 @@ export function createFocusTrap(container: HTMLElement): FocusTrap {
 
   const focusFirstInTrap = () => {
     const list = getCycleList();
-    if (list.length) {
+    if (list.length > 0) {
       focusElement(list[0]);
     } else {
       focusElement(container);
@@ -148,7 +148,7 @@ export function createFocusTrap(container: HTMLElement): FocusTrap {
   const handleKeydown = (event: KeyboardEvent) => {
     if (event.key !== "Tab") return;
     const focusables = getCycleList();
-    if (!focusables.length) {
+    if (focusables.length === 0) {
       event.preventDefault();
       focusElement(container);
       return;
@@ -197,7 +197,7 @@ export interface FocusOrderOptions {
  * Returns a controller to restore the original state when no longer needed.
  */
 export function applyFocusOrder(elements: HTMLElement[], options: FocusOrderOptions = {}): FocusOrderController | null {
-  if (!elements.length) return null;
+  if (elements.length === 0) return null;
 
   const originals = new Map<HTMLElement, string | null>();
   const { startIndex, relativeTo } = options;
@@ -223,7 +223,7 @@ export function applyFocusOrder(elements: HTMLElement[], options: FocusOrderOpti
   return {
     release() {
       originals.forEach((value, element) => {
-        if (value === null || value === undefined) {
+        if (value === null) {
           element.removeAttribute("tabindex");
         } else {
           element.setAttribute("tabindex", value);

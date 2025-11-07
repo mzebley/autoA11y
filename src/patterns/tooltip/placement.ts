@@ -1,8 +1,5 @@
-import {
-  resolveAnchoredPlacement,
-  AnchoredPlacement,
-  PreferredAnchoredPlacement,
-} from "@core/placement";
+import { resolveAnchoredPlacement } from "@core/placement";
+import type { AnchoredPlacement, PreferredAnchoredPlacement } from "@core/placement";
 
 export type TooltipPlacement = AnchoredPlacement;
 

@@ -180,9 +180,14 @@ describe("popover pattern", () => {
     trigger.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(panel.hidden).toBe(false);
 
+    // Place focus inside, then activate the dismiss control
+    dismissButton.focus();
+    expect(document.activeElement).toBe(dismissButton);
     dismissButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
     expect(panel.hidden).toBe(true);
+    // Focus should be restored to the trigger to avoid aria-hidden warnings
+    expect(document.activeElement).toBe(trigger);
     const dismissedEvent = dismissedListener.mock.calls[0][0] as CustomEvent;
     expect(dismissedEvent.detail.reason).toBe("dismiss-control");
   });
@@ -211,11 +216,11 @@ describe("popover pattern", () => {
 
     panel.getBoundingClientRect = () =>
       ({
-        width: 150,
+        width: 100,
         height: 100,
         top: 0,
         left: 0,
-        right: 150,
+        right: 100,
         bottom: 100,
         x: 0,
         y: 0,

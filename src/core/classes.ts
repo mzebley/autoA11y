@@ -66,7 +66,7 @@ export function getClassConfig(el: HTMLElement, options: ClassConfigOptions = {}
   });
   // defaults on trigger if nothing provided
   const applyFallback = options.applyTriggerFallback ?? true;
-  if (applyFallback && !cfg.trigger.true.length && !cfg.trigger.false.length) {
+  if (applyFallback && cfg.trigger.true.length === 0 && cfg.trigger.false.length === 0) {
     cfg.trigger.true = ["automagic-toggle-open"];
     cfg.trigger.false = ["automagic-toggle-closed"];
   }
@@ -76,15 +76,15 @@ export function getClassConfig(el: HTMLElement, options: ClassConfigOptions = {}
 export function applyClasses(cfg: A11yClassConfig, expanded: boolean, trigger: HTMLElement, target?: HTMLElement) {
   const addT = expanded ? cfg.trigger.true : cfg.trigger.false;
   const remT = expanded ? cfg.trigger.false : cfg.trigger.true;
-  if (remT.length) trigger.classList.remove(...remT);
-  if (addT.length) trigger.classList.add(...addT);
+  if (remT.length > 0) trigger.classList.remove(...remT);
+  if (addT.length > 0) trigger.classList.add(...addT);
 
   if (target) {
     const add = expanded ? cfg.target.true : cfg.target.false;
     const rem = expanded ? cfg.target.false : cfg.target.true;
-    if (rem.length) target.classList.remove(...rem);
-    if (add.length) target.classList.add(...add);
-  }
+    if (rem.length > 0) target.classList.remove(...rem);
+    if (add.length > 0) target.classList.add(...add);
+}
 }
 
 /** Create a reusable function that applies class hooks for a given trigger/target pair. */

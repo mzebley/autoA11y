@@ -1,6 +1,6 @@
 /** Ensure `el.id` is present; assign with the given prefix if absent. */
 export function ensureId(el: HTMLElement, prefix: string) {
-  if (!el.id) {
+  if (el.id === "") {
     const hasUUID =
       typeof globalThis.crypto !== "undefined" &&
       typeof (globalThis.crypto as Crypto).randomUUID === "function";
@@ -34,8 +34,8 @@ export function appendToken(el: Element, attr: string, token: string) {
 /** Remove a token from a whitespace-separated attribute value. */
 export function removeToken(el: Element, attr: string, token: string) {
   const existing = el.getAttribute(attr);
-  if (!existing) return;
+  if (existing === null || existing === "") return;
   const tokens = existing.split(/\s+/).filter(Boolean).filter(value => value !== token);
-  if (tokens.length) el.setAttribute(attr, tokens.join(" "));
+  if (tokens.length > 0) el.setAttribute(attr, tokens.join(" "));
   else el.removeAttribute(attr);
 }

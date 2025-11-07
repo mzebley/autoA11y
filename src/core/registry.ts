@@ -21,9 +21,7 @@ function collectMatches(def: PatternDefinition, root: ParentNode | Element): Ele
   if (root instanceof Element && root.matches(def.selector)) {
     nodes.push(root);
   }
-  if ("querySelectorAll" in root) {
-    nodes.push(...Array.from(root.querySelectorAll(def.selector)));
-  }
+  nodes.push(...Array.from((root as ParentNode).querySelectorAll(def.selector)));
   return nodes;
 }
 
@@ -38,7 +36,7 @@ function hydrate(def: PatternDefinition, root: ParentNode | Element) {
 
 export function initPattern(name: string, root: ParentNode | Element = document) {
   const def = patterns[name];
-  if (!def) return;
+  if (typeof def === "undefined") return;
   hydrate(def, root);
 }
 

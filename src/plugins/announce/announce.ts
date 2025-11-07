@@ -50,7 +50,8 @@ function ensureLiveRegion(): HTMLElement | null {
   region.style.height = "1px";
   region.style.overflow = "hidden";
 
-  (document.body ?? document.documentElement).appendChild(region);
+  const parent: HTMLElement = document.body as HTMLElement;
+  parent.appendChild(region);
   liveRegion = region;
   return liveRegion;
 }
@@ -61,29 +62,33 @@ function ensureLiveRegion(): HTMLElement | null {
  */
 export function nameOf(element: HTMLElement): string {
   const ariaLabel = element.getAttribute("aria-label");
-  if (ariaLabel && ariaLabel.trim()) return ariaLabel.trim();
+  if (ariaLabel !== null && ariaLabel.trim().length > 0) return ariaLabel.trim();
 
   const labelledBy = element.getAttribute("aria-labelledby");
-  if (labelledBy) {
+  if (labelledBy !== null && labelledBy !== "") {
     const names = labelledBy
       .split(/\s+/)
       .map(id => document.getElementById(id))
-      .filter((el): el is HTMLElement => !!el)
-      .map(el => el.textContent ?? "")
+      .filter((el): el is HTMLElement => el instanceof HTMLElement)
+      .map(el => {
+        const content = el.textContent as string | null;
+        return content === null ? "" : content;
+      })
       .join(" ")
       .trim();
-    if (names) return names.replace(/\s+/g, " ");
+    if (names.length > 0) return names.replace(/\s+/g, " ");
   }
 
   if ("value" in element && typeof (element as HTMLInputElement).value === "string") {
     const value = (element as HTMLInputElement).value.trim();
-    if (value) return value;
+    if (value.length > 0) return value;
   }
 
-  const text = (element.textContent ?? "").trim();
-  if (text) return text.replace(/\s+/g, " ");
+  const textContent = element.textContent as string | null;
+  const text = (textContent === null ? "" : textContent).trim();
+  if (text.length > 0) return text.replace(/\s+/g, " ");
 
-  return element.id || "Control";
+  return element.id !== "" ? element.id : "Control";
 }
 
 /**
@@ -92,7 +97,7 @@ export function nameOf(element: HTMLElement): string {
 export function announce(message: string, assertive = false) {
   if (typeof window === "undefined") return;
   const trimmed = message.trim();
-  if (!trimmed) return;
+  if (trimmed.length === 0) return;
 
   const now = Date.now();
   if (trimmed === lastMessage && now - lastTimestamp < MESSAGE_DEBOUNCE_MS) return;
@@ -100,7 +105,7 @@ export function announce(message: string, assertive = false) {
   lastTimestamp = now;
 
   const region = ensureLiveRegion();
-  if (!region) return;
+  if (region === null) return;
 
   region.hidden = false;
   region.setAttribute("aria-live", assertive ? "assertive" : "polite");
@@ -123,11 +128,11 @@ function announcementFor(detail: ToggleEventDetail, trigger: HTMLElement): strin
   const attr = expanded
     ? trigger.getAttribute("data-automagica11y-announce-open")
     : trigger.getAttribute("data-automagica11y-announce-closed");
-  if (attr && attr.trim()) return attr.trim();
+  if (attr !== null && attr.trim().length > 0) return attr.trim();
 
   const controlName = nameOf(trigger);
   const state = expanded ? "expanded" : "collapsed";
-  return controlName ? `${controlName} ${state}` : state.charAt(0).toUpperCase() + state.slice(1);
+  return controlName.length > 0 ? `${controlName} ${state}` : state.charAt(0).toUpperCase() + state.slice(1);
 }
 
 /**

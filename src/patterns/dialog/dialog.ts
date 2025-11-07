@@ -52,27 +52,26 @@ function ensureDialogController(target: HTMLElement): DialogController {
   };
 
   const lockBackgroundScroll = () => {
-    if (!document.body) return;
-    previousOverflow = document.body.style.overflow ?? "";
-    document.body.style.overflow = "hidden";
-    document.body.classList.add("modal-open");
+    const body = document.body;
+    previousOverflow = body.style.overflow;
+    body.style.overflow = "hidden";
+    body.classList.add("modal-open");
   };
 
   const restoreBackgroundScroll = () => {
-    if (!document.body) return;
+    const body = document.body;
     if (previousOverflow !== null) {
-      document.body.style.overflow = previousOverflow;
+      body.style.overflow = previousOverflow;
     } else {
-      document.body.style.removeProperty("overflow");
+      body.style.removeProperty("overflow");
     }
-    document.body.classList.remove("modal-open");
+    body.classList.remove("modal-open");
     previousOverflow = null;
   };
 
   const inertBackground = () => {
     backgroundState.length = 0;
-    const root = document.body ?? document.documentElement;
-    if (!root) return;
+    const root = document.documentElement;
 
     const inerted = new Set<HTMLElement>();
 
@@ -179,13 +178,19 @@ function ensureDialogController(target: HTMLElement): DialogController {
   const closeDialog = (source?: HTMLElement | null, restoreFocus = true) => {
     if (!open) return;
 
-    const closingTrigger = source ?? activeTrigger ?? Array.from(triggers)[0] ?? null;
+    let closingTrigger: HTMLElement | null = null;
+    if (source instanceof HTMLElement) closingTrigger = source;
+    else if (activeTrigger instanceof HTMLElement) closingTrigger = activeTrigger;
+    else {
+      const first = Array.from(triggers)[0];
+      closingTrigger = first instanceof HTMLElement ? first : null;
+    }
     const focusReturn =
       previousFocus instanceof HTMLElement && previousFocus !== document.body
         ? previousFocus
-        : closingTrigger ?? activeTrigger ?? null;
+        : (closingTrigger instanceof HTMLElement ? closingTrigger : activeTrigger);
 
-    if (closingTrigger) {
+    if (closingTrigger instanceof HTMLElement) {
       applyTriggerState(closingTrigger, false);
     }
 
@@ -198,11 +203,11 @@ function ensureDialogController(target: HTMLElement): DialogController {
     restoreBackground();
     restoreBackgroundScroll();
 
-    if (closingTrigger) {
+    if (closingTrigger instanceof HTMLElement) {
       dispatch(closingTrigger, "automagica11y:toggle", { expanded: false, trigger: closingTrigger, target });
     }
 
-    if (restoreFocus && focusReturn && typeof focusReturn.focus === "function") {
+    if (restoreFocus === true && focusReturn !== null && typeof focusReturn.focus === "function") {
       queueMicrotask(() => focusElement(focusReturn));
     }
   };
