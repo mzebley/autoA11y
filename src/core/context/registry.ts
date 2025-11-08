@@ -45,7 +45,8 @@ interface DialogBehaviorState {
 }
 
 const dialogState = new WeakMap<HTMLElement, DialogBehaviorState>();
-const dialogBindings = new WeakMap<HTMLElement, WeakSet<HTMLElement>>();
+const dialogBindings = new WeakMap<HTMLElement, Set<HTMLElement>>();
+const dialogTriggerBindings = new WeakMap<HTMLElement, Set<HTMLElement>>();
 
 function ensureDialogState(target: HTMLElement, h: Helpers): DialogBehaviorState {
   let state = dialogState.get(target);
@@ -135,16 +136,31 @@ export const Contexts: Record<string, ContextSpec> = {
       const state = ensureDialogState(target, h);
       let boundTargets = dialogBindings.get(trigger);
       if (!boundTargets) {
-        boundTargets = new WeakSet<HTMLElement>();
+        boundTargets = new Set<HTMLElement>();
         dialogBindings.set(trigger, boundTargets);
       }
       if (boundTargets.has(target)) return;
       boundTargets.add(target);
+
+      let boundTriggers = dialogTriggerBindings.get(target);
+      if (!boundTriggers) {
+        boundTriggers = new Set<HTMLElement>();
+        dialogTriggerBindings.set(target, boundTriggers);
+      }
+      boundTriggers.add(trigger);
       const handleToggle = (event: Event) => {
         if (!(event instanceof CustomEvent)) return;
         const detail = event.detail as ToggleDetail;
         if (!detail || detail.target !== target) return;
         if (detail.expanded) {
+          const siblings = dialogTriggerBindings.get(target);
+          if (siblings) {
+            for (const candidate of siblings) {
+              if (candidate === trigger) continue;
+              const controller = getToggleController(candidate);
+              controller?.(false);
+            }
+          }
           state.currentTrigger = trigger;
           state.restoreFocus.capture(trigger);
           state.inert.activate();
