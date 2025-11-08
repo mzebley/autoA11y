@@ -1,10 +1,10 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
-  "framework": null,
-  "buildCommand": "npm run build",
-  "installCommand": "npm install --include=dev",
-  "outputDirectory": ".",
+  "framework": "astro",
+  "buildCommand": "npm run build && npm run docs:build",
+  "installCommand": "npm install --include=dev && npm --prefix docs install",
+  "outputDirectory": "docs/dist",
   "headers": [
     {
       "source": "/dist/(.*)",
