@@ -1,24 +1,35 @@
 ---
 title: Focus map ordering
-description: Use data-automagica11y-focus-map to create custom tab sequences.
+description: Use data-automagica11y-focus-map to create an ordered Tab flow that exits naturally.
 ---
 
 import Playground from '../../../components/Playground.astro';
 
 # Focus map ordering
 
-This example wires a deterministic tab order across several controls using only data attributes. Try pressing <kbd>Tab</kbd> and <kbd>Shift</kbd>+<kbd>Tab</kbd> inside the playground to see the custom focus loop in action.
+This example wires a deterministic tab order across several controls while leaving the rest of the page reachable. Press <kbd>Tab</kbd> on the anchor to move into the mapped buttons and then <kbd>Tab</kbd> from the final button to continue beyond the pattern—there is no enforced loop.
 
-<Playground id="example-focus-map" heading="Focus map demo" description="Custom tab order with fallback anchor handling.">
-  <div slot="demo" data-automagica11y-focus-map=".primary; .secondary; .tertiary" data-automagica11y-focus-map-scope="self" class="docs-focus-map-example">
-    <button class="primary">Primary action</button>
-    <button class="secondary">Secondary action</button>
-    <button class="tertiary">Tertiary action</button>
-    <a href="#" class="fallback">Outside link</a>
+<Playground id="example-focus-map" heading="Focus map demo" description="Custom tab order with a natural exit.">
+  <div slot="demo" class="docs-focus-map-example">
+    <div id="focus-map-anchor" class="docs-focus-map-anchor" tabindex="0" aria-label="Focus map entry anchor">
+      Focus anchor
+    </div>
+    <div
+      class="docs-focus-map-track"
+      data-automagica11y-focus-map=".primary; .secondary; .tertiary"
+      data-automagica11y-focus-map-scope="self"
+      data-automagica11y-focus-map-anchor="#focus-map-anchor">
+      <button class="primary">Primary action</button>
+      <button class="secondary">Secondary action</button>
+      <button class="tertiary">Tertiary action</button>
+    </div>
+    <a href="#focus-map-more" class="fallback">Continue beyond the map</a>
   </div>
   <div slot="code">
-{`<div data-automagica11y-focus-map=".primary; .secondary; .tertiary"
-     data-automagica11y-focus-map-scope="self">`}
+{`<div id="focus-map-anchor" tabindex="0">Focus anchor</div>`}
+{`<div data-automagica11y-focus-map=".primary; .secondary; .tertiary"`}
+{`     data-automagica11y-focus-map-scope="self"`}
+{`     data-automagica11y-focus-map-anchor="#focus-map-anchor">`}
 {`  <button class="primary">Primary action</button>`}
 {`  <button class="secondary">Secondary action</button>`}
 {`  <button class="tertiary">Tertiary action</button>`}
@@ -26,4 +37,6 @@ This example wires a deterministic tab order across several controls using only 
   </div>
 </Playground>
 
-The helper keeps focus cycling through the three buttons. The surrounding link remains reachable by clicking or manually focusing it, but the focus map anchor (the wrapper element) redirects stray focus back to the first mapped control.
+By default, <kbd>Tab</kbd> from the anchor jumps into the sequenced buttons, <kbd>Shift</kbd>+<kbd>Tab</kbd> from the first button returns to the anchor, and <kbd>Tab</kbd> from the final button lands on the “Continue beyond the map” link. The focus map never traps or loops so the next focusable element stays reachable.
+
+<div id="focus-map-more" aria-hidden="true" hidden></div>

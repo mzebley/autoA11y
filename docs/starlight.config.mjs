@@ -36,12 +36,12 @@ const config = {
       items: [
         { label: 'Contexts', link: '/guides/contexts/' },
         { label: 'Truthiness', link: '/guides/truthiness/' },
-        { label: 'Focus management', link: '/guides/focus/' }
       ]
     },
     {
       label: 'Patterns',
       items: [
+        { label: 'Focus utilities', link: '/patterns/focus/' },
         { label: 'Toggle', link: '/patterns/toggle/' },
         { label: 'Dialog', link: '/patterns/dialog/' },
         { label: 'Popover', link: '/patterns/popover/' },

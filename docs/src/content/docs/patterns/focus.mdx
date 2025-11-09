@@ -1,0 +1,93 @@
+---
+title: Focus utilities
+description: Declarative helpers that control initial focus placement and bespoke tab ordering.
+---
+
+import AttributeTable from '../../../components/AttributeTable.astro';
+import DemoCallout from '../../../components/DemoCallout.astro';
+import { focusInitialAttributes, focusMapAttributes } from '../../../data/patterns';
+
+# Focus utilities
+
+Dialog and popover contexts already stabilize focus, but dedicated helpers live in `src/patterns/focus` when you need finer control. The attributes and helpers work declaratively by default and expose `initFocusInitial`/`initFocusMap` for imperative workflows.
+
+## Initial focus (`data-automagica11y-focus-initial`)
+
+Mark the surface that should receive focus once after hydration. The helper queues the work with `queueMicrotask`, respects `preventScroll`, restores the original `tabindex` after blur, and never clobbers the natural tab sequence for other elements.
+
+<AttributeTable attributes={focusInitialAttributes} />
+
+### Example
+
+```html
+<div hidden id="sheet">
+  <button
+    data-automagica11y-focus-initial
+    data-automagica11y-focus-delay="150"
+    data-automagica11y-focus-prevent-scroll="false">
+    Jump here after the sheet animates
+  </button>
+</div>
+```
+
+Call `initFocusInitial(button)` when the sheet mounts to transfer focus after the animation delay. The helper focuses once per element, so repeated openings respect the original tab order when the node blurs.
+
+## Focus map (`data-automagica11y-focus-map`)
+
+Declare a precise tab sequence using selectors instead of raw `tabindex`. The helper resolves selectors inside the configured scope, wires keyboard handlers that honor `Tab` and `Shift+Tab`, and keeps focus anchored to the surrounding DOM without trapping or looping.
+
+The mapped list activates whenever the attribute resolves to elements and a focus anchor is available. The anchor represents the entry point in the DOM, so pressing `Tab` on it jumps into the ordered list while `Shift+Tab` from the first mapped item routes back to it. Tabbing past the last mapped element is intentionally left to the browser so the rest of the page remains reachable—there is no artificial loop.
+
+<AttributeTable attributes={focusMapAttributes} />
+
+<DemoCallout type="warning" title="Anchor responsibilities">
+  Provide a focusable element with `data-automagica11y-focus-map-anchor`. If the anchor selector cannot be resolved (and the scope is the document), the focus map stays disabled. The helper temporarily adds `tabindex="0"` when the anchor lacks natural focusability and restores it on cleanup.
+</DemoCallout>
+
+### Example
+
+```html
+<div id="focus-map-anchor" tabindex="0" aria-label="Focus map entry point"></div>
+
+<div id="focus-map-zone"
+     data-automagica11y-focus-map="#navbar button; #player button"
+     data-automagica11y-focus-map-scope="#focus-map-zone"
+     data-automagica11y-focus-map-anchor="#focus-map-anchor">
+  <div id="navbar">
+    <button>Playlist</button>
+    <button>Now playing</button>
+  </div>
+  <div id="player">
+    <button>Play</button>
+    <button>Pause</button>
+  </div>
+</div>
+
+<a href="#outside">The rest of the page</a>
+```
+
+Pressing <kbd>Tab</kbd> on the anchor jumps into the sequenced buttons, while <kbd>Tab</kbd> from the last button naturally lands on the outside link—the focus map does not loop back on itself.
+
+### Behavior summary
+
+- The attribute accepts a semicolon-delimited string or JSON array of selectors that resolve against the designated scope (`self`, a selector, or the entire document).
+- `data-automagica11y-focus-map-anchor` ties the mapped list back into the natural tab order—Tab from the anchor goes into the list, <kbd>Shift</kbd>+<kbd>Tab</kbd> from the first element returns to the anchor, and <kbd>Tab</kbd> from the last element continues beyond the focus map.
+- No positive `tabindex` values are assigned; keyboard order is achieved by intercepting Tab presses and focusing the next/previous mapped element.
+- When nodes change after initialization, rerun `initFocusMap` to refresh the order.
+
+## Shared focus utilities
+
+`src/core/focus.ts` exposes reusable helpers that keep focus changes predictable:
+
+- `getFocusableIn(root)` — finds focusable descendants inside a container.
+- `focusElement(element, options)` — focuses without permanently altering `tabindex`.
+- `createFocusTrap(container)` — powers dialog-style containment.
+- `applyFocusOrder(elements)` — temporarily reorders focus via sequential `tabindex` values and returns a controller that restores originals.
+
+## Coverage plan
+
+1. Ship a recipe showing `initFocusInitial` paired with the animate plugin so focus waits for exit transitions.
+2. Build a live playground that lets you interactively author focus maps and preview how Tab/Shift+Tab behave.
+3. Cross-link the pattern documentation from contexts once dialogs, popovers, and future composites highlight which helpers they already call header by default.
+
+Track progress on the [Core modules](/reference/core/) plan as you contribute these additions.

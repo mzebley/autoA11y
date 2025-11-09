@@ -200,8 +200,8 @@ export const focusMapAttributes = [
     attribute: 'data-automagica11y-focus-map-anchor',
     type: 'Selector',
     allowedValues: 'CSS selector',
-    defaultValue: '`self`',
-    description: 'Element that receives focus first and loops back when Shift+Tabbing from the first mapped item.'
+    defaultValue: 'Scope container (if focusable)',
+    description: 'Anchor that captures focus before entering the map and receives it when Shift+Tabbing from the first mapped item. Tabbing past the final element continues beyond the map so the rest of the page is unaffected.'
   }
 ];
 
