@@ -1,0 +1,60 @@
+---
+title: Animate toggles
+description: Delay toggle teardown until your CSS transitions and animations finish.
+sidebar:
+  order: 3
+---
+
+import DemoCallout from '../../../components/DemoCallout.astro';
+
+# Animate toggles
+
+`data-automagica11y-animate` is now part of the core toggle lifecycle. Any trigger can opt in and automagicA11y will postpone the close transition until CSS transitions and animations finish. No registration step is required—the listener is installed automatically when patterns hydrate.
+
+```html
+<button
+  data-automagica11y-toggle="#sheet"
+  data-automagica11y-animate="target"
+  data-automagica11y-target-class-open="sheet--open"
+>
+  Toggle sheet
+</button>
+<section id="sheet" hidden class="sheet">
+  <p>Exit animations finish before the panel hides.</p>
+</section>
+```
+
+Pair the attribute with your closing classes so the surface stays visible while animations run. automagicA11y temporarily removes `hidden`, applies the closing classes, and then hides the target once motion completes.
+
+## Opt-in values
+
+| Value | Watched element | Notes |
+|-------|-----------------|-------|
+| _(empty)_ or `target` | Target surface | Default. The target stays visible while the closing animation plays. |
+| `trigger` | Trigger element | Watch the trigger when it owns the animation (glowing pills, scale-down buttons). |
+| CSS selector | Resolved element | Observe any element in the document (overlays, wrappers). The target still receives open/close classes unless you override them. |
+
+<DemoCallout type="info" title="Graceful no-motion fallback">
+  When `prefers-reduced-motion: reduce` is active or the watched element reports zero-duration animations, animate falls back to immediate close so assistive tech never waits on visuals.
+</DemoCallout>
+
+## Lifecycle
+
+1. Triggers dispatch `automagica11y:toggle` with `expanded: false`.
+2. Animate intercepts the close, applies closing classes, and sets `--automagica11y-animating="closing"` on the watched element.
+3. The system listens for `transitionend`/`animationend`, `Element.getAnimations()`, and a computed timeout fallback.
+4. After animations finish, it hides the target, dispatches `automagica11y:animation-done`, and replays `automagica11y:toggle` with `__automagica11yAnimateProcessed: true` so core toggle handlers complete cleanup.
+
+Listen for `automagica11y:animation-done` when you need to chain additional teardown (DOM recycling, analytics, focus handoffs).
+
+## Compatibility
+
+Animate registers itself automatically for the current document. If you are hydrating toggles inside an iframe or shadow root, call `initAnimateLifecycle()` with that document to wire up the listener manually.
+
+## Coverage plan
+
+1. Publish a playground demonstrating trigger-, target-, and selector-based animations.
+2. Document how animate coordinates with the focus helpers so focus waits until the panel is hidden.
+3. Provide troubleshooting tips for common configuration mistakes (missing transitions, conflicting preventDefault calls).
+
+Progress rolls up to the [Core modules](/reference/core/) plan.

@@ -77,7 +77,7 @@ When toggled **closed**, these revert automatically.
 | `data-automagica11y-toggle` | Selector (ID or class) of the target element. **Required.** |
 | `data-automagica11y-trigger-class-[state]` | Classes to apply to the trigger for each state (`open`, `closed`, `active`, `inactive`, etc.). |
 | `data-automagica11y-target-class-[state]` | Classes to apply to the target element for each state (declared on the trigger). |
-| `data-automagica11y-animate` | Opt into the animate plugin so close transitions wait for CSS to finish. |
+| `data-automagica11y-animate` | Opt into the built-in animate lifecycle so close transitions wait for CSS to finish. |
 
 ---
 
@@ -133,7 +133,7 @@ document.addEventListener("automagica11y:toggle", (e) => {
 - The trigger and target **must** have unique IDs — automagicA11y generates them if missing.  
 - The target is hidden by default (`hidden = true`).  
 - You can style `[hidden]` or `[aria-expanded="true"]` for transitions.  
-- To integrate with CSS animations, use the upcoming `animate` plugin.
+- To integrate with CSS animations, use the built-in `data-automagica11y-animate` attribute.
 
 ---
 
@@ -210,7 +210,7 @@ This structure makes it simple to integrate with frameworks, custom logic, or an
 |-----------|-------------|
 | [Attribute Grammar](../../../docs/attributes.md) | How data-automagica11y attributes are structured |
 | [Truthiness Mapping](../../../docs/truthiness.md) | Synonym mapping for state terms |
-| [Plugins](../../../docs/plugins.md) | Extend functionality (persist, announce, animate, etc.) |
+| [Extensions](../../../docs/plugins.md) | Extend functionality (persist roadmap, announce, animate lifecycle, etc.) |
 | [Architecture](../../../docs/ARCHITECTURE.md) | Internal registry and helper system overview |
 
 ---

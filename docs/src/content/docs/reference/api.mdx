@@ -44,10 +44,10 @@ import {
 
 All helpers return cleanup functions when applicable, enabling frameworks to destroy behaviors during unmount.
 
-## Plugins
+## Extensions
 
 ```ts
-import { registerAnnouncePlugin, registerAnimatePlugin } from 'automagica11y';
+import { registerAnnouncePlugin, initAnimateLifecycle } from 'automagica11y';
 ```
 
-Call plugin registrars once per document. They hook into existing events and extend behavior without touching your markup.
+The announce plugin still requires an explicit registration so it can listen for toggle changes. Animate is now part of the core lifecycle and no longer needs a manual call. For advanced scenarios you can call `initAnimateLifecycle(document)` to register the listener against a specific document (iframes, portals, etc.), but the default build handles it automatically during hydration.

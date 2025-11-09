@@ -46,6 +46,7 @@ const config = {
       items: [
         { label: 'Contexts', link: '/guides/contexts/' },
         { label: 'Truthiness', link: '/guides/truthiness/' },
+        { label: 'Animate toggles', link: '/guides/animate/' }
       ]
     },
     {
@@ -61,8 +62,7 @@ const config = {
     {
       label: 'Plugins',
       items: [
-        { label: 'Announce', link: '/plugins/announce/' },
-        { label: 'Animate', link: '/plugins/animate/' }
+        { label: 'Announce', link: '/plugins/announce/' }
       ]
     },
     {

@@ -16,7 +16,7 @@ automagicA11y emits consistent, namespaced events. Listen for these on `document
 | `automagica11y:toggle:opened` | After the target is fully shown. | `{ trigger, target, targets }` |
 | `automagica11y:toggle:closed` | After the target is hidden. | `{ trigger, target, targets }` |
 
-Plugins such as Animate listen for `automagica11y:toggle` and may cancel the close transition while animations finish. Watch for `event.defaultPrevented` if you are coordinating custom teardown logic.
+Animate listens for `automagica11y:toggle` and may cancel the close transition while animations finish. Watch for `event.defaultPrevented` if you are coordinating custom teardown logic.
 
 ## Tooltip events
 
@@ -39,10 +39,10 @@ Legacy aliases `automagica11y:ready` and `automagica11y:toggle` still fire for t
 | `automagica11y:popover:dismissed` | Popover closed due to Escape, outside click, etc. | `{ trigger, target, reason }` |
 | `automagica11y:popover:placement` | Placement engine resolves a side. | `{ trigger, target, placement }` |
 
-## Animate plugin events
+## Animate lifecycle events
 
 | Event | Fired when | Detail |
 |-------|------------|--------|
-| `automagica11y:animation-done` | The animate plugin finishes a deferred close transition. | `{ trigger, target }` |
+| `automagica11y:animation-done` | Animate finishes a deferred close transition. | `{ trigger, target, watched?, phase: "close" }` |
 
-The plugin re-dispatches the original `automagica11y:toggle` event with `detail.__automagica11yAnimateProcessed = true` once animations complete. Use this to run logic after CSS transitions settle.
+Animate re-dispatches the original `automagica11y:toggle` event with `detail.__automagica11yAnimateProcessed = true` once animations complete. Use this to run logic after CSS transitions settle.

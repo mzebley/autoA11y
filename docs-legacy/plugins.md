@@ -42,19 +42,13 @@ Add `data-automagica11y-announce` to a trigger to opt in:
 
 ---
 
-## Current Plugin — Animate
+## Animate lifecycle
 
 ### Description
 
-Delays the “close” side of a pattern until its CSS transition/animation completes so UI stays smooth without manual timeouts.
+Delays the “close” side of a pattern until its CSS transition/animation completes so UI stays smooth without manual timeouts. Animate is now bundled with the core toggle lifecycle and activates automatically when a trigger includes `data-automagica11y-animate`.
 
 ### Usage
-
-```ts
-import { registerAnimatePlugin } from "automagica11y";
-
-registerAnimatePlugin();
-```
 
 ```html
 <button
@@ -70,6 +64,7 @@ registerAnimatePlugin();
 - Automatically skips delays when `prefers-reduced-motion: reduce` is active or when no animation is present.
 - Applies a defensive timeout so content never gets stuck mid-animation.
 - Works with any pattern that emits `automagica11y:toggle` (toggle, tooltip, dialog, etc.).
+- Use `initAnimateLifecycle()` if you need to wire the listener to a specific document manually (for example, within iframes).
 
 ---
 

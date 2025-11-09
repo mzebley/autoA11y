@@ -1,4 +1,5 @@
 import { registerPattern } from "@core/registry";
+import { initAnimateLifecycle } from "@core/animate";
 import { initContextTrigger } from "./shared/context";
 import { initToggle, isToggleOpen, getToggleTarget } from "./toggle/toggle";
 import { initTooltip } from "./tooltip/tooltip";
@@ -62,6 +63,7 @@ registerPattern("focus-trap", "[data-automagica11y-focus-trap]", (node) => {
 });
 
 if (typeof document !== "undefined") {
+  initAnimateLifecycle(document);
   initFocusLinks(document);
 }
 
