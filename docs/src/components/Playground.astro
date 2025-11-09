@@ -51,85 +51,100 @@ const summaryLabel = hasCode ? 'View source' : undefined;
     )}
   </div>
   {hasScript && <slot name="script" />}
-  <script is:inline>
+  <script is:inline type="module">
     (() => {
-      const id = '{id}';
-      const preview = document.querySelector(`[data-playground-preview="${id}"]`);
-      if (!preview) return;
-      const code = document.querySelector(`[data-playground-code="${id}"]`);
-      const actions = document.querySelectorAll(`[data-playground-id="${id}"]`);
-      const initial = preview.innerHTML;
+      const sections = Array.from(document.querySelectorAll('section.playground'));
+      if (sections.length === 0) return;
 
       let libraryPromise;
       const ensureLibrary = () => {
+        // Prefer the globally exposed library (set by docs/src/scripts/auto-init.ts)
+        // to avoid repeated dynamic imports and related dev-time warnings.
+        const w = window;
+        if (w.automagica11y) {
+          return Promise.resolve(w.automagica11y);
+        }
         if (!libraryPromise) {
           libraryPromise = import('automagica11y');
         }
         return libraryPromise;
       };
 
-      const dispatchInit = () => {
-        ensureLibrary().then(({ initNode }) => {
-          if (typeof initNode === 'function') {
-            initNode(preview);
-          }
-          const event = new CustomEvent('automagica11y:playground:init', {
-            detail: { id, container: preview }
-          });
-          document.dispatchEvent(event);
-        });
-      };
+      for (const section of sections) {
+        const preview = section.querySelector('[data-playground-preview]');
+        if (!preview) continue;
+        const id = preview.getAttribute('data-playground-preview') || '';
+        const code = section.querySelector('[data-playground-code]');
+        const actions = section.querySelectorAll('[data-playground-id]');
+        const initial = preview.innerHTML;
 
-      const toggleCode = (action) => {
-        if (!code) return;
-        const expanded = !code.hasAttribute('hidden');
-        code.toggleAttribute('hidden', expanded);
-        const nowExpanded = !code.hasAttribute('hidden');
-        action.setAttribute('aria-pressed', nowExpanded ? 'true' : 'false');
-        action.setAttribute('aria-expanded', nowExpanded ? 'true' : 'false');
-        action.textContent = nowExpanded ? 'Hide source' : 'View source';
-      };
-
-      actions.forEach((action) => {
-        action.addEventListener('click', () => {
-          const mode = action.getAttribute('data-playground-action');
-          if (mode === 'code') {
-            toggleCode(action);
-            return;
-          }
-
-          if (mode === 'reset') {
-            preview.innerHTML = initial;
-            if (code) {
-              code.setAttribute('hidden', '');
-            }
-            if (code && actions.length > 1) {
-              actions.forEach(btn => {
-                if (btn.getAttribute('data-playground-action') === 'code') {
-                  btn.setAttribute('aria-pressed', 'false');
-                  btn.setAttribute('aria-expanded', 'false');
-                  btn.textContent = 'View source';
-                }
+        const dispatchInit = () => {
+          ensureLibrary()
+            .then(({ initNode }) => {
+              if (typeof initNode === 'function') {
+                initNode(preview);
+              }
+              const event = new CustomEvent('automagica11y:playground:init', {
+                detail: { id, container: preview }
               });
-            }
-            dispatchInit();
-          }
-        });
-      });
+              document.dispatchEvent(event);
+            })
+            .catch((err) => {
+              console.error('[docs/playground] Failed to load automagica11y', err);
+            });
+        };
 
-      dispatchInit();
+        const toggleCode = (action) => {
+          if (!code) return;
+          const expanded = !code.hasAttribute('hidden');
+          code.toggleAttribute('hidden', expanded);
+          const nowExpanded = !code.hasAttribute('hidden');
+          action.setAttribute('aria-pressed', nowExpanded ? 'true' : 'false');
+          action.setAttribute('aria-expanded', nowExpanded ? 'true' : 'false');
+          action.textContent = nowExpanded ? 'Hide source' : 'View source';
+        };
+
+        actions.forEach((action) => {
+          action.addEventListener('click', () => {
+            const mode = action.getAttribute('data-playground-action');
+            if (mode === 'code') {
+              toggleCode(action);
+              return;
+            }
+
+            if (mode === 'reset') {
+              preview.innerHTML = initial;
+              if (code) {
+                code.setAttribute('hidden', '');
+              }
+              if (code && actions.length > 1) {
+                actions.forEach(btn => {
+                  if (btn.getAttribute('data-playground-action') === 'code') {
+                    btn.setAttribute('aria-pressed', 'false');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.textContent = 'View source';
+                  }
+                });
+              }
+              dispatchInit();
+            }
+          });
+        });
+
+        dispatchInit();
+      }
     })();
   </script>
 </section>
 
 <style>
   .playground {
-    border: 1px solid var(--sl-color-gray-4);
-    border-radius: var(--sl-border-radius-lg);
-    padding: var(--sl-spacing-lg);
-    margin: var(--sl-spacing-xl) 0;
-    background: var(--sl-color-bg);
-    box-shadow: var(--sl-shadow-md);
+    border: 1px solid var(--docs-border-soft);
+    border-radius: var(--docs-radius-lg);
+    padding: var(--docs-spacing-lg);
+    margin: var(--docs-spacing-xl) 0;
+    background: var(--docs-bg);
+    box-shadow: var(--docs-shadow-md);
   }
 
   .playground__header {
@@ -158,13 +173,16 @@ const summaryLabel = hasCode ? 'View source' : undefined;
   }
 
   .playground__action {
-    border: 1px solid var(--sl-color-gray-5);
+    border: 1px solid var(--docs-border-soft);
     border-radius: var(--sl-border-radius-sm);
     padding: 0.35rem 0.75rem;
     background: var(--sl-color-bg);
     color: var(--sl-color-text);
     font-size: var(--sl-text-sm);
     cursor: pointer;
+  }
+  .playground__action:hover {
+    background: var(--docs-bg-soft);
   }
 
   .playground__body {
@@ -174,16 +192,16 @@ const summaryLabel = hasCode ? 'View source' : undefined;
 
   .playground__preview {
     padding: var(--sl-spacing-md);
-    background: var(--sl-color-bg-raised);
-    border-radius: var(--sl-border-radius-md);
-    border: 1px dashed color-mix(in srgb, var(--sl-color-text-muted) 30%, transparent);
+    background: var(--docs-code-bg);
+    border-radius: var(--docs-radius-md);
+    border: 1px dashed var(--docs-preview-border);
   }
 
   .playground__code {
     overflow-x: auto;
-    background: var(--sl-color-bg-raised);
-    border-radius: var(--sl-border-radius-md);
-    padding: var(--sl-spacing-md);
+    background: var(--docs-bg-soft);
+    border-radius: var(--docs-radius-md);
+    padding: var(--docs-spacing-md);
   }
 
   @media (max-width: 720px) {

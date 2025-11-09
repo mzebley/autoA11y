@@ -4,11 +4,15 @@ const { type = 'info', title } = Astro.props as {
   title?: string;
 };
 
-const tone = {
+// Narrow role to known, valid ARIA role literals without importing AriaRole
+type CalloutRole = 'note' | 'alert' | 'status';
+type CalloutTone = { label: string; role: CalloutRole };
+const toneMap: Record<'info' | 'warning' | 'success', CalloutTone> = {
   info: { label: 'Note', role: 'note' },
   warning: { label: 'Warning', role: 'alert' },
   success: { label: 'Success', role: 'status' }
-}[type];
+};
+const tone = toneMap[type];
 ---
 <div class={`demo-callout demo-callout--${type}`} role={tone.role} data-callout-type={type}>
   <div class="demo-callout__heading">
@@ -22,9 +26,9 @@ const tone = {
 <style>
   .demo-callout {
     border-radius: var(--sl-border-radius-md);
-    border: 1px solid var(--sl-color-gray-4);
-    padding: var(--sl-spacing-md);
-    background: var(--sl-color-bg-raised);
+    border: 1px solid var(--docs-border-soft);
+    padding: var(--docs-spacing-md);
+    background: var(--docs-bg-soft);
     display: grid;
     gap: var(--sl-spacing-sm);
   }

@@ -17,7 +17,10 @@ const config = {
   ],
   customCss: ['./src/styles/custom.css'],
   head: [
-    { tag: 'meta', attrs: { name: 'theme-color', content: '#4f46e5' } }
+    // Light/dark theme-color for better PWA/UA UI integration
+    { tag: 'meta', attrs: { name: 'theme-color', media: '(prefers-color-scheme: light)', content: '#4f46e5' } },
+    { tag: 'meta', attrs: { name: 'theme-color', media: '(prefers-color-scheme: dark)', content: '#1f2430' } },
+    { tag: 'script', attrs: { type: 'module', src: '/src/scripts/auto-init.ts' } }
   ],
   sidebar: [
     {

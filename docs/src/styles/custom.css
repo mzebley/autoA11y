@@ -1,11 +1,42 @@
 :root {
   --automagica11y-accent: #6366f1;
   --automagica11y-accent-soft: color-mix(in srgb, var(--automagica11y-accent) 20%, transparent);
+  /* Bridge variables: prefer Starlight tokens, fall back to sensible defaults */
+  --docs-bg: var(--sl-color-bg, #ffffff);
+  --docs-bg-soft: var(--sl-color-bg-soft, #f6f6f8);
+  --docs-gray-5: var(--sl-color-gray-5, #d1d5db);
+  --docs-gray-6: var(--sl-color-gray-6, #9ca3af);
+  --docs-gray-7: var(--sl-color-gray-7, #6b7280);
+  --docs-radius-sm: var(--sl-border-radius-sm, 6px);
+  --docs-radius-md: var(--sl-border-radius-md, 8px);
+  --docs-radius-lg: var(--sl-border-radius-lg, 12px);
+  --docs-spacing-sm: var(--sl-spacing-sm, 0.5rem);
+  --docs-spacing-md: var(--sl-spacing-md, 1rem);
+  --docs-spacing-lg: var(--sl-spacing-lg, 1.25rem);
+  --docs-spacing-xl: var(--sl-spacing-xl, 2rem);
+  --docs-text-sm: var(--sl-text-sm, 0.875rem);
+  --docs-text-muted: var(--sl-color-text-muted, #6b7280);
+  --docs-shadow-md: var(--sl-shadow-md, 0 1px 2px rgba(0,0,0,.05), 0 1px 3px rgba(0,0,0,.1));
+
+  /* Unified semantic tokens we can tweak per theme */
+  --docs-border-soft: var(--docs-gray-5);
+  --docs-border-strong: var(--docs-gray-6);
+  --docs-preview-border: color-mix(in srgb, var(--docs-text-muted) 30%, transparent);
+  --docs-code-bg: var(--docs-bg-soft);
+  --docs-table-header-bg: color-mix(in srgb, var(--docs-code-bg) 92%, white 8%);
+  --docs-table-row-alt-bg: color-mix(in srgb, var(--docs-code-bg) 96%, white 4%);
 }
 
 :root[data-theme='dark'] {
   --automagica11y-accent: #a855f7;
   --automagica11y-accent-soft: color-mix(in srgb, var(--automagica11y-accent) 25%, transparent);
+  /* Dark-tuned surfaces and borders for better contrast */
+  --docs-border-soft: var(--docs-gray-6);
+  --docs-border-strong: var(--docs-gray-7);
+  --docs-preview-border: color-mix(in srgb, var(--docs-text-muted) 55%, transparent);
+  --docs-code-bg: color-mix(in srgb, var(--docs-bg-soft) 84%, black 16%);
+  --docs-table-header-bg: color-mix(in srgb, var(--docs-code-bg) 90%, black 10%);
+  --docs-table-row-alt-bg: color-mix(in srgb, var(--docs-code-bg) 96%, black 4%);
 }
 
 :where(.sl-logo svg) {
@@ -14,6 +45,46 @@
 
 .sl-markdown-content a {
   color: var(--automagica11y-accent);
+}
+
+/* Tweak inline code contrast across themes, keep subtle */
+.sl-markdown-content :not(pre) > code {
+  background: var(--docs-code-bg);
+  border: 1px solid var(--docs-border-soft);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  color: var(--sl-color-text);
+}
+
+/* Markdown fenced blocks: align with our surface tokens */
+.sl-markdown-content pre {
+  background: var(--docs-code-bg);
+  border: 1px solid var(--docs-border-soft);
+  border-radius: var(--docs-radius-md);
+}
+
+/* Playground: improve source panel readability */
+.playground__code {
+  overflow-x: auto;
+  background: var(--docs-code-bg);
+  border-radius: var(--docs-radius-md);
+  padding: var(--docs-spacing-md);
+  border: 1px solid var(--docs-border-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: var(--sl-text-sm);
+  line-height: 1.5;
+  max-height: 28rem;
+}
+
+.playground__code code {
+  display: block;
+  white-space: pre;
+}
+
+.playground__action[aria-pressed="true"] {
+  background: var(--docs-bg-soft);
+  border-color: var(--docs-border-strong);
 }
 
 .playground__action:focus-visible,
@@ -39,17 +110,17 @@
 .docs-cta-panel {
   margin-top: 1rem;
   padding: 1rem;
-  background: var(--sl-color-bg-soft);
-  border-radius: var(--sl-border-radius-md);
+  background: var(--docs-bg-soft);
+  border-radius: var(--docs-radius-md);
 }
 
 .docs-toggle-pattern__trigger,
 .docs-example-toggle__trigger,
 .docs-truthiness-example__trigger {
-  border: 1px solid var(--sl-color-gray-5);
+  border: 1px solid var(--docs-border-soft);
   padding: 0.5rem 1rem;
-  border-radius: var(--sl-border-radius-md);
-  background: var(--sl-color-bg);
+  border-radius: var(--docs-radius-md);
+  background: var(--docs-bg);
 }
 
 .docs-toggle-pattern__trigger--active,
@@ -65,8 +136,9 @@
 .docs-truthiness-example__panel {
   margin-top: 1rem;
   padding: 1rem;
-  border-radius: var(--sl-border-radius-md);
-  background: var(--sl-color-bg-soft);
+  border-radius: var(--docs-radius-md);
+  background: var(--docs-code-bg);
+  border: 1px solid var(--docs-border-soft);
 }
 
 .docs-toggle-pattern__panel--open,
@@ -84,18 +156,19 @@
   background: transparent;
   color: var(--automagica11y-accent);
   padding: 0.5rem 1rem;
-  border-radius: var(--sl-border-radius-md);
+  border-radius: var(--docs-radius-md);
   margin-right: 0.75rem;
 }
 
 .docs-dialog-pattern__surface,
 .docs-example-dialog__surface {
-  background: var(--sl-color-bg);
-  border-radius: var(--sl-border-radius-lg);
+  background: var(--docs-bg);
+  border-radius: var(--docs-radius-lg);
   padding: 1.5rem;
   max-width: 28rem;
   margin: 10vh auto;
-  box-shadow: var(--sl-shadow-lg);
+  box-shadow: var(--docs-shadow-md);
+  border: 1px solid var(--docs-border-soft);
 }
 
 .docs-dialog-pattern__close,
@@ -123,6 +196,7 @@
   display: inline-block;
   margin-left: 1rem;
   padding: 0.5rem 0.75rem;
-  background: var(--sl-color-bg-soft);
-  border-radius: var(--sl-border-radius-sm);
+  background: var(--docs-code-bg);
+  border-radius: var(--docs-radius-sm);
+  border: 1px solid var(--docs-border-soft);
 }

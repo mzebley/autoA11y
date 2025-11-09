@@ -1,4 +1,5 @@
 import { registerPattern } from "@core/registry";
+import { initContextTrigger } from "./shared/context";
 import { initToggle, isToggleOpen, getToggleTarget } from "./toggle/toggle";
 import { initTooltip } from "./tooltip/tooltip";
 import { initPopover } from "./popover/popover";
@@ -6,6 +7,15 @@ import { initDialog } from "./dialog/dialog";
 import { initFocusInitial } from "./focus/focus-initial";
 import { initFocusMap } from "./focus/focus-map";
 export { registerAnnouncePlugin } from "../plugins/announce/announce";
+
+// Register the generic context pattern first so it can promote
+// `data-automagica11y-target` into `data-automagica11y-toggle`
+// before the toggle pattern hydrates.
+registerPattern("context", "[data-automagica11y-context]", (node) => {
+  if (node instanceof Element) {
+    initContextTrigger(node);
+  }
+});
 
 registerPattern("toggle", "[data-automagica11y-toggle]", (node) => {
   if (node instanceof Element) {

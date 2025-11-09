@@ -1,11 +1,22 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "astro/tsconfigs/strict",
+  // Note: Avoid referencing module presets (e.g. "astro/tsconfigs/strict")
+  // so editors don’t error when node_modules isn’t installed in /docs.
   "compilerOptions": {
+    "strict": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    // Astro ambient client types for .astro/.mdx usage
+    "types": ["astro/client"],
     "baseUrl": ".",
+    // Point TypeScript to the built type declarations for accurate intellisense
+    // while Vite runtime resolution is handled in astro.config.mjs.
     "paths": {
-      "automagica11y": ["../dist/automagica11y.esm.js"],
-      "automagica11y/*": ["../dist/*"]
+      // Prefer built types; fall back to source for local dev before build
+      "automagica11y": ["../dist/types/index.d.ts", "../src/index.ts"],
+      "automagica11y/*": ["../dist/types/*", "../src/*"]
     }
-  }
+  },
+  "include": ["src", "astro.config.mjs", "starlight.config.mjs"],
+  "exclude": ["node_modules", "dist"]
 }

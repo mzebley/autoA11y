@@ -21,7 +21,7 @@ automagicA11y is a lightweight, framework-agnostic toolkit that turns semantic H
 
 <DemoCallout title="Local builds" type="info">
   <p>
-    Run <code>npm run build</code> from the repository root before <code>npm run docs:dev</code>. The playgrounds import the freshly built <code>dist/</code> bundle so demos always reflect your local changes.
+    You can run <code>npm run docs:dev</code> without a prebuild now. The docs resolve to the local source during development and use the built bundle when available.
   </p>
 </DemoCallout>
 
@@ -42,7 +42,7 @@ Once installed, add `data-automagica11y-*` attributes to your markup and let the
       data-automagica11y-trigger-class-open="docs-cta-button--active"
       class="docs-cta-button"
     >
-      Reveal mission
+      <span>Reveal mission</span>
     </button>
     <div id="landing-toggle-panel" hidden class="docs-cta-panel">
       automagicA11y synchronizes <code>aria-expanded</code>, handles keyboard input, and keeps the DOM tidy.
