@@ -1,12 +1,171 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { initFocusInitial } from "../../src/patterns/focus/focus-initial";
 import { initFocusMap } from "../../src/patterns/focus/focus-map";
+import { initFocusLinks } from "../../src/patterns/focus/focus-links";
 
 describe("focus patterns", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
     (document.activeElement as (HTMLElement | null))?.blur?.();
     vi.useRealTimers();
+    initFocusLinks(document);
+  });
+
+  it("chains focus-next attributes to create a deterministic order", () => {
+    document.body.innerHTML = `
+      <button id="a" data-automagica11y-focus-next="#b">A</button>
+      <button id="b" data-automagica11y-focus-next="#c">B</button>
+      <button id="c">C</button>
+      <button id="after">After</button>
+    `;
+
+    const a = document.getElementById("a") as HTMLElement;
+    const b = document.getElementById("b") as HTMLElement;
+    const c = document.getElementById("c") as HTMLElement;
+
+    a.focus();
+    const evt1 = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    a.dispatchEvent(evt1);
+    expect(evt1.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(b);
+
+    const evt2 = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    b.dispatchEvent(evt2);
+    expect(evt2.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(c);
+
+    const evt3 = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    c.dispatchEvent(evt3);
+    expect(evt3.defaultPrevented).toBe(false);
+  });
+
+  it("uses explicit focus-prev attributes to travel backwards", () => {
+    document.body.innerHTML = `
+      <button id="a" data-automagica11y-focus-next="#b">A</button>
+      <button id="b"
+        data-automagica11y-focus-next="#c"
+        data-automagica11y-focus-prev="#a">B</button>
+      <button id="c" data-automagica11y-focus-prev="#b">C</button>
+    `;
+
+    const c = document.getElementById("c") as HTMLElement;
+    const b = document.getElementById("b") as HTMLElement;
+    const a = document.getElementById("a") as HTMLElement;
+
+    c.focus();
+    const evt1 = new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true, cancelable: true });
+    c.dispatchEvent(evt1);
+    expect(evt1.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(b);
+
+    const evt2 = new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true, cancelable: true });
+    b.dispatchEvent(evt2);
+    expect(evt2.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(a);
+  });
+
+  it("infers reverse links when only focus-next is authored", () => {
+    document.body.innerHTML = `
+      <button id="a" data-automagica11y-focus-next="#b">A</button>
+      <button id="b" data-automagica11y-focus-next="#c">B</button>
+      <button id="c">C</button>
+    `;
+
+    const c = document.getElementById("c") as HTMLElement;
+    const b = document.getElementById("b") as HTMLElement;
+    const a = document.getElementById("a") as HTMLElement;
+
+    c.focus();
+    const evt1 = new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true, cancelable: true });
+    c.dispatchEvent(evt1);
+    expect(evt1.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(b);
+
+    const evt2 = new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true, cancelable: true });
+    b.dispatchEvent(evt2);
+    expect(evt2.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(a);
+  });
+
+  it("skips hidden or disabled targets while following links", () => {
+    document.body.innerHTML = `
+      <button id="a" data-automagica11y-focus-next="#b">A</button>
+      <button id="b" data-automagica11y-focus-next="#c" hidden>B</button>
+      <button id="c" data-automagica11y-focus-next="#d" disabled>C</button>
+      <button id="d">D</button>
+    `;
+
+    const a = document.getElementById("a") as HTMLElement;
+    const d = document.getElementById("d") as HTMLElement;
+
+    a.focus();
+    const evt = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    a.dispatchEvent(evt);
+    expect(evt.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(d);
+  });
+
+  it("respects element and container scope overrides", () => {
+    document.body.innerHTML = `
+      <section id="island">
+        <div id="host" tabindex="0" data-automagica11y-focus-next=".go" data-automagica11y-focus-scope="self">
+          <button id="local" class="go">Local</button>
+        </div>
+      </section>
+      <button id="global" class="go">Global</button>
+      <section id="container" data-automagica11y-focus-scope="#island">
+        <button id="controller" data-automagica11y-focus-next=".go">Controller</button>
+      </section>
+    `;
+
+    const host = document.getElementById("host") as HTMLElement;
+    const controller = document.getElementById("controller") as HTMLElement;
+    const local = document.getElementById("local") as HTMLElement;
+
+    host.focus();
+    const evt1 = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    host.dispatchEvent(evt1);
+    expect(evt1.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(local);
+
+    controller.focus();
+    const evt2 = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    controller.dispatchEvent(evt2);
+    expect(evt2.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(local);
+  });
+
+  it("keeps graphs isolated per root including shadow DOM", () => {
+    document.body.innerHTML = `
+      <button id="light-a" data-automagica11y-focus-next="#light-b">Light A</button>
+      <button id="light-b">Light B</button>
+    `;
+
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    const shadow = host.attachShadow({ mode: "open" });
+    shadow.innerHTML = `
+      <button id="shadow-a" data-automagica11y-focus-next="#shadow-b">Shadow A</button>
+      <button id="shadow-b">Shadow B</button>
+    `;
+    initFocusLinks(shadow);
+
+    const lightA = document.getElementById("light-a") as HTMLElement;
+    const lightB = document.getElementById("light-b") as HTMLElement;
+    const shadowA = shadow.getElementById("shadow-a") as HTMLElement;
+    const shadowB = shadow.getElementById("shadow-b") as HTMLElement;
+
+    lightA.focus();
+    const lightEvt = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    lightA.dispatchEvent(lightEvt);
+    expect(lightEvt.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(lightB);
+
+    shadowA.focus();
+    const shadowEvt = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    shadowA.dispatchEvent(shadowEvt);
+    expect(shadowEvt.defaultPrevented).toBe(true);
+    expect(shadow.activeElement).toBe(shadowB);
   });
 
   it("focuses an element marked with data-automagica11y-focus-initial", async () => {

@@ -279,6 +279,23 @@ Instead of rewriting `tabindex` values, the pattern listens for `Tab` / `Shift +
 
 Use this to keep floating players, overlays, or portal-based menus in the logical navigation sequence without breaking the author’s source order.
 
+#### Per-element focus links
+
+```html
+<div class="controls" data-automagica11y-focus-scope="#deck">
+  <button id="shuffle" data-automagica11y-focus-next="#repeat">Shuffle</button>
+  <button id="play"
+          data-automagica11y-focus-next="#queue"
+          data-automagica11y-focus-prev="#shuffle">Play</button>
+  <section id="deck">
+    <button id="repeat" data-automagica11y-focus-prev="#play">Repeat</button>
+    <button id="queue">Queue</button>
+  </section>
+</div>
+```
+
+Author `data-automagica11y-focus-next` / `data-automagica11y-focus-prev` on any focusable element to define its immediate neighbors. The handler resolves selectors inside the configured scope (use `data-automagica11y-focus-scope="self"` to limit lookups) and moves focus to the first viable match, skipping hidden, disabled, or inert nodes along the way. Reverse edges are inferred automatically, so adding only `data-automagica11y-focus-next` still makes `Shift+Tab` land on the previous linked element.
+
 ---
 
 ## Plugins
