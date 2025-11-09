@@ -21,6 +21,7 @@
   /* Unified semantic tokens we can tweak per theme */
   --docs-border-soft: var(--docs-gray-5);
   --docs-border-strong: var(--docs-gray-6);
+  --docs-bg-strong: color-mix(in srgb, var(--docs-bg-soft) 92%, var(--docs-border-soft) 8%);
   --docs-preview-border: color-mix(in srgb, var(--docs-text-muted) 30%, transparent);
   --docs-code-bg: var(--docs-bg-soft);
   --docs-table-header-bg: color-mix(in srgb, var(--docs-code-bg) 92%, white 8%);
@@ -33,6 +34,7 @@
   /* Dark-tuned surfaces and borders for better contrast */
   --docs-border-soft: var(--docs-gray-6);
   --docs-border-strong: var(--docs-gray-7);
+  --docs-bg-strong: color-mix(in srgb, var(--docs-bg-soft) 85%, black 15%);
   --docs-preview-border: color-mix(in srgb, var(--docs-text-muted) 55%, transparent);
   --docs-code-bg: color-mix(in srgb, var(--docs-bg-soft) 84%, black 16%);
   --docs-table-header-bg: color-mix(in srgb, var(--docs-code-bg) 90%, black 10%);
@@ -250,6 +252,16 @@
   background: var(--docs-bg-soft);
 }
 
+.docs-focus-map-anchor {
+  padding: 0.35rem 0.75rem;
+  border: 1px dashed var(--docs-border-soft);
+  border-radius: var(--docs-radius-md);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--automagica11y-accent);
+  background: var(--docs-bg-strong);
+}
+
 .docs-focus-map-example button {
   border: 0;
   padding: 0.5rem 0.75rem;
@@ -257,6 +269,12 @@
   background: var(--automagica11y-accent);
   color: white;
   cursor: pointer;
+}
+
+.docs-focus-map-track {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
 }
 
 .docs-focus-map-example .fallback {
