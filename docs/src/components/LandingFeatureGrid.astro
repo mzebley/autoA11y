@@ -4,22 +4,12 @@
  * It accepts a heading, optional introductory copy, and a list of feature objects so docs pages
  * can reuse the layout without duplicating markup.
  */
-type FeatureLink = {
-  href: string;
-  label: string;
-};
-
-type Feature = {
-  title: string;
-  description: string;
-  icon?: string;
-  link?: FeatureLink;
-};
+import type { LandingFeature } from '../data/landing';
 
 interface Props {
   heading: string;
   description?: string;
-  features: Feature[];
+  features: LandingFeature[];
 }
 
 const { heading, description, features } = Astro.props as Props;
