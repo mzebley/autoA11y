@@ -66,13 +66,52 @@ function normalizeInitial(initial: FocusTrapOptions["initial"]): "first" | "last
   return initial;
 }
 
-function matchesVisibility(el: HTMLElement) {
+function hasHiddenAncestor(el: HTMLElement) {
+  const doc = el.ownerDocument ?? document;
+  let current: HTMLElement | null = el;
+  while (current) {
+    if (current.hasAttribute("hidden")) return true;
+    if (current.getAttribute("aria-hidden") === "true") return true;
+    if (current.hasAttribute("disabled")) return true;
+    if (current.hasAttribute("inert")) return true;
+    if ("inert" in current && (current as HTMLElement & { inert: boolean }).inert) return true;
+
+    const view = doc.defaultView;
+    if (view) {
+      const style = view.getComputedStyle(current);
+      if (style.display === "none") return true;
+      if (style.visibility === "hidden" || style.visibility === "collapse") return true;
+    }
+
+    if (current.parentElement) {
+      current = current.parentElement;
+      continue;
+    }
+
+    const root = current.getRootNode();
+    if (root instanceof ShadowRoot) {
+      current = root.host instanceof HTMLElement ? root.host : null;
+    } else {
+      current = null;
+    }
+  }
+  return false;
+}
+
+/**
+ * Determine if a focus trap container should be considered visible.
+ * Visibility is blocked when the element or any ancestor is hidden,
+ * aria-hidden, disabled, inert, or has computed styles that remove it
+ * from the visual flow.
+ */
+export function isFocusTrapVisible(el: HTMLElement) {
   if (!el.isConnected) return false;
-  if (el.hasAttribute("hidden")) return false;
-  if (el.getAttribute("aria-hidden") === "true") return false;
-  if (el.hasAttribute("disabled")) return false;
-  if (typeof el.closest === "function" && el.closest("[inert]")) return false;
+  if (hasHiddenAncestor(el)) return false;
   return true;
+}
+
+function matchesVisibility(el: HTMLElement) {
+  return isFocusTrapVisible(el);
 }
 
 function tryFocus(element: HTMLElement | null) {
@@ -226,7 +265,7 @@ class FocusTrapInstance {
     });
     this.mutationObserver.observe(this.container, {
       attributes: true,
-      attributeFilter: ["hidden", "aria-hidden", "style", "class", "disabled"],
+      attributeFilter: ["hidden", "aria-hidden", "style", "class", "disabled", "inert"],
     });
 
     if (this.container.ownerDocument?.body && typeof MutationObserver !== "undefined") {
@@ -238,6 +277,8 @@ class FocusTrapInstance {
       this.documentObserver.observe(this.container.ownerDocument.body, {
         childList: true,
         subtree: true,
+        attributes: true,
+        attributeFilter: ["hidden", "aria-hidden", "style", "class", "disabled", "inert"],
       });
     }
   }

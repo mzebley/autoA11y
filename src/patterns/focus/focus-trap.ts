@@ -1,5 +1,9 @@
 import { getDataAttribute } from "@core/attributes";
-import { enableFocusTrap, readFocusTrapOptionsFromAttributes } from "@core/focus-trap";
+import {
+  enableFocusTrap,
+  isFocusTrapVisible,
+  readFocusTrapOptionsFromAttributes,
+} from "@core/focus-trap";
 
 interface TrapHandle {
   release: (() => void) | null;
@@ -10,15 +14,6 @@ interface TrapHandle {
 }
 
 const initialized = new WeakSet<HTMLElement>();
-
-function isContainerVisible(container: HTMLElement) {
-  if (!container.isConnected) return false;
-  if (container.hasAttribute("hidden")) return false;
-  if (container.getAttribute("aria-hidden") === "true") return false;
-  if (container.hasAttribute("disabled")) return false;
-  if (typeof container.closest === "function" && container.closest("[inert]")) return false;
-  return true;
-}
 
 function detailTargetsMatches(container: HTMLElement, detail: unknown) {
   if (!detail || typeof detail !== "object") return false;
@@ -50,7 +45,7 @@ function disable(handle: TrapHandle) {
 function ensureAutoObserver(container: HTMLElement, handle: TrapHandle) {
   if (!handle.auto || handle.autoObserver || typeof MutationObserver === "undefined") return;
   const observer = new MutationObserver(() => {
-    if (isContainerVisible(container)) {
+    if (isFocusTrapVisible(container)) {
       enable(container, handle);
     } else {
       disable(handle);
@@ -58,8 +53,16 @@ function ensureAutoObserver(container: HTMLElement, handle: TrapHandle) {
   });
   observer.observe(container, {
     attributes: true,
-    attributeFilter: ["hidden", "aria-hidden", "style", "class", "disabled"],
+    attributeFilter: ["hidden", "aria-hidden", "style", "class", "disabled", "inert"],
   });
+  const root = container.ownerDocument?.body;
+  if (root) {
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ["hidden", "aria-hidden", "style", "class", "disabled", "inert"],
+      subtree: true,
+    });
+  }
   handle.autoObserver = observer;
 }
 
@@ -80,7 +83,7 @@ function ensureRemovalObserver(container: HTMLElement, handle: TrapHandle) {
 function setupAuto(container: HTMLElement, handle: TrapHandle) {
   if (!handle.auto) return;
   ensureAutoObserver(container, handle);
-  if (isContainerVisible(container)) {
+  if (isFocusTrapVisible(container)) {
     enable(container, handle);
   }
 }
