@@ -6,6 +6,7 @@ import { initPopover } from "./popover/popover";
 import { initDialog } from "./dialog/dialog";
 import { initFocusInitial } from "./focus/focus-initial";
 import { initFocusMap } from "./focus/focus-map";
+import { initFocusLinks } from "./focus/focus-links";
 export { registerAnnouncePlugin } from "../plugins/announce/announce";
 
 // Register the generic context pattern first so it can promote
@@ -53,6 +54,10 @@ registerPattern("focus-map", "[data-automagica11y-focus-map]", (node) => {
   }
 });
 
+if (typeof document !== "undefined") {
+  initFocusLinks(document);
+}
+
 export {
   initToggle,
   isToggleOpen,
@@ -62,4 +67,5 @@ export {
   initDialog,
   initFocusInitial,
   initFocusMap,
+  initFocusLinks,
 };

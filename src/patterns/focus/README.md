@@ -53,6 +53,32 @@ The focus map is intentionally non‑disruptive — pressing Tab on the last map
 
 ---
 
+## Per-element Links (`data-automagica11y-focus-next` / `data-automagica11y-focus-prev`)
+
+Opt any focusable element into a custom neighbor relationship without authoring a full map. The runtime listens for `Tab`/`Shift+Tab`, resolves the linked selector inside the configured scope, and moves focus to the next available candidate. Hidden, disabled, or inert matches are skipped automatically so keyboard users never land on inert controls.
+
+```html
+<div data-automagica11y-focus-scope="#control-deck">
+  <button id="shuffle" data-automagica11y-focus-next="#repeat">Shuffle</button>
+  <button id="play"
+          data-automagica11y-focus-next="#queue"
+          data-automagica11y-focus-prev="#shuffle">Play</button>
+  <div id="control-deck">
+    <button id="repeat" data-automagica11y-focus-prev="#play">Repeat</button>
+    <button id="queue">Queue</button>
+  </div>
+</div>
+```
+
+- `data-automagica11y-focus-next` and `data-automagica11y-focus-prev` accept any valid CSS selector (IDs, classes, complex chains). The handler searches the nearest scoped root and focuses the resolved element or its first focusable descendant.
+- `data-automagica11y-focus-scope="self"` constrains selector resolution to the current element. Passing a selector (e.g., `#control-deck`) scopes the lookup to that container; omit the attribute to search the entire document or shadow root.
+- Reverse edges are inferred automatically, so `Shift+Tab` works even if you only authored `data-automagica11y-focus-next` links.
+- Focus links are initialized globally via `initFocusLinks()` and co-exist with focus maps—use maps for long sequences and per-element links for lightweight overrides.
+
+If a selector cannot be resolved, or every resolved element is unfocusable, the library lets the browser’s natural tab order continue.
+
+---
+
 ## Shared Focus Utilities
 
 Located in `src/core/focus.ts`:

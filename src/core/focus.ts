@@ -25,6 +25,10 @@ function isVisible(element: HTMLElement) {
 export function isFocusable(element: HTMLElement) {
   if (element.hasAttribute("disabled")) return false;
   if (element.getAttribute("aria-hidden") === "true") return false;
+  if (typeof element.closest === "function") {
+    const inertAncestor = element.closest("[inert]");
+    if (inertAncestor) return false;
+  }
   if (!isVisible(element)) return false;
   if (element.matches(FOCUSABLE_SELECTOR)) return true;
   return element.tabIndex >= 0;

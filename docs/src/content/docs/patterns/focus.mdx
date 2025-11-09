@@ -5,7 +5,7 @@ description: Declarative helpers that control initial focus placement and bespok
 
 import AttributeTable from '../../../components/AttributeTable.astro';
 import DemoCallout from '../../../components/DemoCallout.astro';
-import { focusInitialAttributes, focusMapAttributes } from '../../../data/patterns';
+import { focusInitialAttributes, focusMapAttributes, focusLinkAttributes } from '../../../data/patterns';
 
 # Focus utilities
 
@@ -74,6 +74,33 @@ Pressing <kbd>Tab</kbd> on the anchor jumps into the sequenced buttons, while <k
 - `data-automagica11y-focus-map-anchor` ties the mapped list back into the natural tab order—Tab from the anchor goes into the list, <kbd>Shift</kbd>+<kbd>Tab</kbd> from the first element returns to the anchor, and <kbd>Tab</kbd> from the last element continues beyond the focus map.
 - No positive `tabindex` values are assigned; keyboard order is achieved by intercepting Tab presses and focusing the next/previous mapped element.
 - When nodes change after initialization, rerun `initFocusMap` to refresh the order.
+
+## Per-element links (`data-automagica11y-focus-next` / `data-automagica11y-focus-prev`)
+
+Build lightweight relationships between neighboring elements without defining an entire map. Any focusable control can declare a `data-automagica11y-focus-next` or `data-automagica11y-focus-prev` selector. When the user presses <kbd>Tab</kbd> or <kbd>Shift</kbd>+<kbd>Tab</kbd>, automagicA11y resolves the selector inside the configured scope, skips hidden/disabled/inert matches, and focuses the first viable result. Reverse edges are inferred automatically, so authoring only the `focus-next` side still makes backward navigation work.
+
+<AttributeTable attributes={focusLinkAttributes} />
+
+### Example
+
+```html
+<section class="controls" data-automagica11y-focus-scope="#player-deck">
+  <button id="shuffle" data-automagica11y-focus-next="#repeat">Shuffle</button>
+  <button id="play"
+          data-automagica11y-focus-next="#queue"
+          data-automagica11y-focus-prev="#shuffle">Play</button>
+  <div id="player-deck">
+    <button id="repeat" data-automagica11y-focus-prev="#play">Repeat</button>
+    <button id="queue">Queue</button>
+  </div>
+</section>
+```
+
+### Behavior summary
+
+- Use `data-automagica11y-focus-scope="self"` to restrict selectors to the element itself, or pass a selector to limit resolution to a specific container. Without an explicit scope, selectors resolve within the document or shadow root that owns the control.
+- When the resolved node is not focusable, the helper focuses the first focusable descendant. If no focusable element exists, the browser’s natural tab order continues.
+- Focus links are registered once via `initFocusLinks()` (called automatically from the bundle) and coexist with focus maps. Combine them to nudge a few controls without maintaining an ordered list.
 
 ## Shared focus utilities
 

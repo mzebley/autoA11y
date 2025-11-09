@@ -1,0 +1,39 @@
+---
+title: Per-element focus links
+description: Reorder immediate Tab neighbors with data-automagica11y-focus-next / -focus-prev.
+---
+
+import Playground from '../../../components/Playground.astro';
+
+# Per-element focus links
+
+Link individual controls together without maintaining a long focus map. The demo below wires three playback buttons so <kbd>Tab</kbd> and <kbd>Shift</kbd>+<kbd>Tab</kbd> cycle through the authored order regardless of DOM placement.
+
+<Playground id="example-focus-links" heading="Per-element focus links" description="Custom neighbors with next/prev selectors.">
+  <div slot="demo" class="docs-focus-links">
+    <section class="docs-focus-links__shell" data-automagica11y-focus-scope="#focus-links-deck">
+      <button id="focus-links-shuffle" data-automagica11y-focus-next="#focus-links-repeat">Shuffle</button>
+      <button id="focus-links-play"
+              data-automagica11y-focus-next="#focus-links-queue"
+              data-automagica11y-focus-prev="#focus-links-shuffle">Play</button>
+      <div id="focus-links-deck">
+        <button id="focus-links-repeat" data-automagica11y-focus-prev="#focus-links-play">Repeat</button>
+        <button id="focus-links-queue">Queue</button>
+      </div>
+    </section>
+  </div>
+  <div slot="code">
+{`<section data-automagica11y-focus-scope="#focus-links-deck">`}
+{`  <button id="shuffle" data-automagica11y-focus-next="#repeat">Shuffle</button>`}
+{`  <button id="play"`}
+{`          data-automagica11y-focus-next="#queue"`}
+{`          data-automagica11y-focus-prev="#shuffle">Play</button>`}
+{`  <div id="focus-links-deck">`}
+{`    <button id="repeat" data-automagica11y-focus-prev="#play">Repeat</button>`}
+{`    <button id="queue">Queue</button>`}
+{`  </div>`}
+{`</section>`}
+  </div>
+</Playground>
+
+Press <kbd>Tab</kbd> on “Shuffle” to advance through Play → Repeat → Queue, then <kbd>Shift</kbd>+<kbd>Tab</kbd> to move back up the chain. Hidden or disabled targets are skipped automatically, so the authored order stays accessible.

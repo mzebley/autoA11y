@@ -205,6 +205,30 @@ export const focusMapAttributes = [
   }
 ];
 
+export const focusLinkAttributes = [
+  {
+    attribute: 'data-automagica11y-focus-next',
+    type: 'string | Selector',
+    allowedValues: 'Any CSS selector',
+    defaultValue: 'None',
+    description: 'Points to the element (or its first focusable descendant) that receives focus on Tab.'
+  },
+  {
+    attribute: 'data-automagica11y-focus-prev',
+    type: 'string | Selector',
+    allowedValues: 'Any CSS selector',
+    defaultValue: 'None',
+    description: 'Points to the element (or its first focusable descendant) that receives focus on Shift+Tab.'
+  },
+  {
+    attribute: 'data-automagica11y-focus-scope',
+    type: '`document` | `self` | Selector',
+    allowedValues: 'Scope tokens',
+    defaultValue: '`document`',
+    description: 'Limits where link selectors resolve—use `self` for the current element or supply a selector for a container.'
+  }
+];
+
 export const attributeReference = [
   {
     attribute: 'data-automagica11y-toggle',
