@@ -1,3 +1,4 @@
+import starlightThemeRapide from 'starlight-theme-rapide';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -14,9 +15,10 @@ const config = {
     {
       icon: 'github',
       label: 'GitHub',
-      href: 'https://github.com/markzebley/automagicA11y'
+      href: 'https://github.com/mzebley/automagica11y'
     }
   ],
+  plugins: [starlightThemeRapide()],
   customCss: ['./src/styles/custom.css'],
   head: [
     // Light/dark theme-color for better PWA/UA UI integration

@@ -1,290 +1,121 @@
+/* Load families */
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:ital,wght@0,200..800;1,200..800&family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap');
+
+/* Project font variables */
+:root{
+  --sl-font: "Atkinson Hyperlegible Next", Arial, system-ui, sans-serif;
+  --sl-font-heading: "Atkinson Hyperlegible Next", system-ui, Arial, sans-serif;
+  --sl-font-mono: "Atkinson Hyperlegible Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Example sensible defaults */
+html{ font-family: var(--sl-font-body); }
+h1,h2,h3,h4{ font-family: var(--sl-font-heading); }
+code,kbd,pre{ font-family: var(--sl-font-mono); }
+
+/* ===== Base brand tokens (Empathy Engine) ===== */
 :root {
-  --automagica11y-accent: #6366f1;
-  --automagica11y-accent-soft: color-mix(in srgb, var(--automagica11y-accent) 20%, transparent);
-  /* Bridge variables: prefer Starlight tokens, fall back to sensible defaults */
-  --docs-bg: var(--sl-color-bg, #ffffff);
-  --docs-bg-soft: var(--sl-color-bg-soft, #f6f6f8);
-  --docs-gray-5: var(--sl-color-gray-5, #d1d5db);
-  --docs-gray-6: var(--sl-color-gray-6, #9ca3af);
-  --docs-gray-7: var(--sl-color-gray-7, #6b7280);
-  --docs-radius-sm: var(--sl-border-radius-sm, 6px);
-  --docs-radius-md: var(--sl-border-radius-md, 8px);
-  --docs-radius-lg: var(--sl-border-radius-lg, 12px);
-  --docs-spacing-sm: var(--sl-spacing-sm, 0.5rem);
-  --docs-spacing-md: var(--sl-spacing-md, 1rem);
-  --docs-spacing-lg: var(--sl-spacing-lg, 1.25rem);
-  --docs-spacing-xl: var(--sl-spacing-xl, 2rem);
-  --docs-text-sm: var(--sl-text-sm, 0.875rem);
-  --docs-text-muted: var(--sl-color-text-muted, #6b7280);
-  --docs-shadow-md: var(--sl-shadow-md, 0 1px 2px rgba(0,0,0,.05), 0 1px 3px rgba(0,0,0,.1));
+  /* Brand */
+  --aa-color-primary: #2266dd;   /* Accessibility Blue */
+  --aa-color-accent:  #ff7c66;   /* Soft Coral */
+  --aa-color-bg:      #faf9f7;   /* Cream White */
+  --aa-color-text:    #2e2e2e;   /* Graphite Gray */
 
-  /* Unified semantic tokens we can tweak per theme */
-  --docs-border-soft: var(--docs-gray-5);
-  --docs-border-strong: var(--docs-gray-6);
-  --docs-bg-strong: color-mix(in srgb, var(--docs-bg-soft) 92%, var(--docs-border-soft) 8%);
-  --docs-preview-border: color-mix(in srgb, var(--docs-text-muted) 30%, transparent);
-  --docs-code-bg: var(--docs-bg-soft);
-  --docs-table-header-bg: color-mix(in srgb, var(--docs-code-bg) 92%, white 8%);
-  --docs-table-row-alt-bg: color-mix(in srgb, var(--docs-code-bg) 96%, white 4%);
+  /* UI helpers */
+  --aa-focus-ring:    2px solid var(--aa-color-accent);
+  --aa-link:          var(--aa-color-primary);
+  --aa-link-hover:    var(--aa-color-accent);
+  --aa-code-bg:       #e9f1ff;   /* inline code bg (light blue) */
+  --aa-code-fg:       #1c3b80;
+
+  /* Layout nits */
+  --aa-nav-bg:        var(--aa-color-bg);
+  --aa-header-bg:     var(--color-accent-50);
+  --aa-header-fg:     var(--color-accent-900);
+  --aa-footer-bg:     var(--aa-color-text);
+  --aa-footer-fg:     #faf9f7;
+
+  /* Optional spacing & width hooks (work nicely in Starlight) */
+  --sl-content-width: 60rem;     /* docs content column width (example) */
+  --sl-main-pad:      1.25rem;   /* padding for <main> (since 0.34.4) */
 }
 
-:root[data-theme='dark'] {
-  --automagica11y-accent: #a855f7;
-  --automagica11y-accent-soft: color-mix(in srgb, var(--automagica11y-accent) 25%, transparent);
-  /* Dark-tuned surfaces and borders for better contrast */
-  --docs-border-soft: var(--docs-gray-6);
-  --docs-border-strong: var(--docs-gray-7);
-  --docs-bg-strong: color-mix(in srgb, var(--docs-bg-soft) 85%, black 15%);
-  --docs-preview-border: color-mix(in srgb, var(--docs-text-muted) 55%, transparent);
-  --docs-code-bg: color-mix(in srgb, var(--docs-bg-soft) 84%, black 16%);
-  --docs-table-header-bg: color-mix(in srgb, var(--docs-code-bg) 90%, black 10%);
-  --docs-table-row-alt-bg: color-mix(in srgb, var(--docs-code-bg) 96%, black 4%);
+/* High-contrast, respectful dark palette (optional) */
+:root[data-theme="dark"] {
+  --aa-color-primary: #9ab eff;  /* softened primary for dark */
+  --aa-color-accent:  #ff947b;
+  --aa-color-bg:      #202224;
+  --aa-color-text:    #f5f6f7;
+  --aa-link:          var(--aa-color-primary);
+  --aa-link-hover:    var(--aa-color-accent);
+  --aa-code-bg:       #0f1a2e;
+  --aa-code-fg:       #d7e3ff;
 }
 
-:where(.sl-logo svg) {
-  height: 32px;
+/* ===== Map brand → Starlight theme variables =====
+   Starlight reads a gray scale and an accent scale.
+   You can generate these any way you like; below is a simple mapping.
+   (If you use Tailwind + @astrojs/starlight-tailwind, the same names apply.) */
+:root {
+  /* Accent scale (used for links, active nav, etc.) */
+  --color-primary-50:  color-mix(in srgb, var(--aa-color-primary) 10%, white);
+  --color-primary-100: color-mix(in srgb, var(--aa-color-primary) 20%, white);
+  --color-primary-200: color-mix(in srgb, var(--aa-color-primary) 30%, white);
+  --color-primary-300: color-mix(in srgb, var(--aa-color-primary) 40%, white);
+  --color-primary-400: color-mix(in srgb, var(--aa-color-primary) 55%, white);
+  --color-primary-500: var(--aa-color-primary);
+  --color-primary-600: color-mix(in srgb, var(--aa-color-primary) 80%, black);
+  --color-primary-700: color-mix(in srgb, var(--aa-color-primary) 70%, black);
+  --color-primary-800: color-mix(in srgb, var(--aa-color-primary) 60%, black);
+  --color-primary-900: color-mix(in srgb, var(--aa-color-primary) 50%, black);
+  --color-primary-950: color-mix(in srgb, var(--aa-color-primary) 40%, black);
+
+    --color-accent-50:  color-mix(in srgb, var(--aa-color-accent) 10%, white);
+  --color-accent-100: color-mix(in srgb, var(--aa-color-accent) 20%, white);
+  --color-accent-200: color-mix(in srgb, var(--aa-color-accent) 30%, white);
+  --color-accent-300: color-mix(in srgb, var(--aa-color-accent) 40%, white);
+  --color-accent-400: color-mix(in srgb, var(--aa-color-accent) 55%, white);
+  --color-accent-500: var(--aa-color-accent);
+  --color-accent-600: color-mix(in srgb, var(--aa-color-accent) 80%, black);
+  --color-accent-700: color-mix(in srgb, var(--aa-color-accent) 70%, black);
+  --color-accent-800: color-mix(in srgb, var(--aa-color-accent) 60%, black);
+  --color-accent-900: color-mix(in srgb, var(--aa-color-accent) 50%, black);
+  --color-accent-950: color-mix(in srgb, var(--aa-color-accent) 40%, black);
+
+  /* Gray scale (used for text & backgrounds) */
+  --color-gray-50:  #ffffff;
+  --color-gray-100: #faf9f7; /* Cream White */
+  --color-gray-200: #f2f2f2;
+  --color-gray-300: #e6e6e6;
+  --color-gray-400: #cfcfcf;
+  --color-gray-500: #9b9b9b;
+  --color-gray-600: #6f6f6f;
+  --color-gray-700: #4d4d4d;
+  --color-gray-800: #313131;
+  --color-gray-900: #2e2e2e; /* Graphite Gray */
+  --color-gray-950: #1c1e22;
 }
 
-.sl-markdown-content a {
-  color: var(--automagica11y-accent);
+/* ===== Opinionated UI wiring (nice defaults that match your brief) ===== */
+:root {
+  /* Header / Footer / Nav */
+  --sl-color-bg-nav:      var(--aa-nav-bg);
+  --sl-color-bg-header:   var(--aa-header-bg);
+  --sl-color-bg-footer:   var(--aa-footer-bg);
+  --sl-color-fg-footer:   var(--aa-footer-fg);
+
+  /* Links & focus */
+  --sl-link-color:        var(--aa-link);
+  --sl-link-color-hover:  var(--aa-link-hover);
+  --sl-focus-ring:        var(--aa-focus-ring);
+
+  /* Inline code */
+  --sl-color-code-bg:     var(--aa-code-bg);
+  --sl-color-code-text:   var(--aa-code-fg);
 }
 
-/* Tweak inline code contrast across themes, keep subtle */
-.sl-markdown-content :not(pre) > code {
-  background: var(--docs-code-bg);
-  border: 1px solid var(--docs-border-soft);
-  padding: 0.1rem 0.35rem;
-  border-radius: 0.25rem;
-  color: var(--sl-color-text);
-}
-
-/* Markdown fenced blocks: align with our surface tokens */
-.sl-markdown-content pre {
-  background: var(--docs-code-bg);
-  border: 1px solid var(--docs-border-soft);
-  border-radius: var(--docs-radius-md);
-}
-
-/* Playground: improve source panel readability */
-.playground__code {
-  overflow-x: auto;
-  background: var(--docs-code-bg);
-  border-radius: var(--docs-radius-md);
-  padding: var(--docs-spacing-md);
-  border: 1px solid var(--docs-border-soft);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
-  font-size: var(--sl-text-sm);
-  line-height: 1.5;
-  max-height: 28rem;
-}
-
-.playground__code code {
-  display: block;
-  white-space: pre;
-}
-
-.playground__action[aria-pressed="true"] {
-  background: var(--docs-bg-soft);
-  border-color: var(--docs-border-strong);
-}
-
-.playground__action:focus-visible,
-.demo-callout :is(a, button):focus-visible {
-  outline: 2px solid var(--automagica11y-accent);
+/* Example: make the focus outline consistent everywhere */
+*:focus-visible {
+  outline: var(--aa-focus-ring);
   outline-offset: 2px;
-}
-
-.docs-cta-button {
-  border: 0;
-  border-radius: 9999px;
-  background: var(--automagica11y-accent);
-  color: white;
-  font-weight: 600;
-  padding: 0.65rem 1.5rem;
-  cursor: pointer;
-}
-
-.docs-cta-button--active {
-  box-shadow: 0 0 0 0.2rem var(--automagica11y-accent-soft);
-}
-
-.docs-cta-panel {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: var(--docs-bg-soft);
-  border-radius: var(--docs-radius-md);
-}
-
-.docs-toggle-pattern__trigger,
-.docs-example-toggle__trigger,
-.docs-truthiness-example__trigger,
-.docs-example-accordion__trigger {
-  border: 1px solid var(--docs-border-soft);
-  padding: 0.5rem 1rem;
-  border-radius: var(--docs-radius-md);
-  background: var(--docs-bg);
-}
-
-.docs-toggle-pattern__trigger--active,
-.docs-example-toggle__trigger--open,
-.docs-truthiness-example__trigger--expanded,
-.docs-truthiness-example__trigger--on,
-.docs-example-accordion__trigger--open {
-  background: var(--automagica11y-accent);
-  color: white;
-}
-
-.docs-toggle-pattern__panel,
-.docs-example-toggle__panel,
-.docs-truthiness-example__panel,
-.docs-example-accordion__panel {
-  margin-top: 1rem;
-  padding: 1rem;
-  border-radius: var(--docs-radius-md);
-  background: var(--docs-code-bg);
-  border: 1px solid var(--docs-border-soft);
-}
-
-.docs-toggle-pattern__panel--open,
-.docs-truthiness-example__panel--shown {
-  outline: 2px solid var(--automagica11y-accent-soft);
-}
-
-.docs-truthiness-example__panel--hidden {
-  opacity: 0.75;
-}
-
-.docs-example-accordion {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.docs-dialog-pattern__trigger,
-.docs-example-dialog__trigger {
-  border: 1px solid var(--automagica11y-accent);
-  background: transparent;
-  color: var(--automagica11y-accent);
-  padding: 0.5rem 1rem;
-  border-radius: var(--docs-radius-md);
-  margin-right: 0.75rem;
-}
-
-.docs-dialog-pattern__surface,
-.docs-example-dialog__surface {
-  background: var(--docs-bg);
-  border-radius: var(--docs-radius-lg);
-  padding: 1.5rem;
-  max-width: 28rem;
-  margin: 10vh auto;
-  box-shadow: var(--docs-shadow-md);
-  border: 1px solid var(--docs-border-soft);
-}
-
-.docs-dialog-pattern__close,
-.docs-example-dialog__close {
-  margin-top: 1rem;
-}
-
-.docs-tooltip-pattern__grid,
-.docs-contexts-guide__grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.docs-example-tooltip__trigger {
-  border: 0;
-  background: var(--automagica11y-accent);
-  color: white;
-  border-radius: 9999px;
-  width: 2.5rem;
-  height: 2.5rem;
-}
-
-.docs-example-tooltip__surface {
-  display: inline-block;
-  margin-left: 1rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--docs-code-bg);
-  border-radius: var(--docs-radius-sm);
-  border: 1px solid var(--docs-border-soft);
-}
-
-.docs-popover-pattern__trigger,
-.docs-popover-example__trigger {
-  border: 1px solid var(--docs-border-soft);
-  border-radius: var(--docs-radius-md);
-  padding: 0.5rem 1rem;
-  background: var(--docs-bg);
-  cursor: pointer;
-}
-
-.docs-popover-pattern__surface,
-.docs-popover-example__surface {
-  margin-top: 1rem;
-  padding: 1rem;
-  border-radius: var(--docs-radius-md);
-  background: var(--docs-code-bg);
-  border: 1px solid var(--docs-border-soft);
-  max-width: 24rem;
-  box-shadow: var(--docs-shadow-md);
-}
-
-.docs-popover-pattern__close,
-.docs-popover-example__dismiss {
-  margin-top: 0.75rem;
-  border: 0;
-  border-radius: var(--docs-radius-sm);
-  padding: 0.5rem 0.75rem;
-  background: var(--automagica11y-accent);
-  color: white;
-  cursor: pointer;
-}
-
-.docs-popover-example {
-  min-height: 12rem;
-  padding: 1rem;
-  border: 1px dashed var(--docs-border-soft);
-  border-radius: var(--docs-radius-lg);
-  overflow: auto;
-  max-height: 16rem;
-}
-
-.docs-focus-map-example {
-  display: grid;
-  gap: 0.75rem;
-  padding: 1rem;
-  border: 1px solid var(--docs-border-soft);
-  border-radius: var(--docs-radius-lg);
-  background: var(--docs-bg-soft);
-}
-
-.docs-focus-map-anchor {
-  padding: 0.35rem 0.75rem;
-  border: 1px dashed var(--docs-border-soft);
-  border-radius: var(--docs-radius-md);
-  text-align: center;
-  font-size: 0.85rem;
-  color: var(--automagica11y-accent);
-  background: var(--docs-bg-strong);
-}
-
-.docs-focus-map-example button {
-  border: 0;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--docs-radius-md);
-  background: var(--automagica11y-accent);
-  color: white;
-  cursor: pointer;
-}
-
-.docs-focus-map-track {
-  display: grid;
-  gap: 0.6rem;
-  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
-}
-
-.docs-focus-map-example .fallback {
-  color: var(--automagica11y-accent);
 }
