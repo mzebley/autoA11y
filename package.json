@@ -7,6 +7,17 @@
   "module": "dist/automagica11y.esm.js",
   "browser": "dist/automagica11y.min.js",
   "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/automagica11y.esm.js",
+      "require": "./dist/automagica11y.cjs.js",
+      "default": "./dist/automagica11y.esm.js"
+    },
+    "./browser": {
+      "default": "./dist/automagica11y.min.js"
+    }
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -cw",
@@ -18,7 +29,8 @@
     "deploy:vercel": "vercel --prod",
     "docs:dev": "npm --prefix docs run dev",
     "docs:build": "npm --prefix docs run build",
-    "docs:preview": "npm --prefix docs run preview"
+    "docs:preview": "npm --prefix docs run preview",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "accessibility",
@@ -33,6 +45,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
     "@rollup/plugin-alias": "^5.1.1",
