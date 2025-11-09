@@ -21,6 +21,7 @@ type ToggleEventDetail = {
 };
 
 const pending = new WeakMap<HTMLElement, PendingClose>();
+const observedDocuments = new WeakSet<Document>();
 
 const DEFAULT_ANIMATION_CLASS = "automagica11y-animating";
 type AnimatedSide = "trigger" | "target";
@@ -175,7 +176,11 @@ function getDuration(el: HTMLElement) {
 }
 
 /** Attach listeners + timeout that call `done` when the animation completes */
-function watchAnimation(element: HTMLElement, done: () => void) {
+function watchAnimation(
+  element: HTMLElement,
+  done: () => void,
+  view: Window & typeof globalThis
+) {
   let finished = false;
   let activeTransitions = 0;
   let activeAnimations = 0;
@@ -254,7 +259,7 @@ function watchAnimation(element: HTMLElement, done: () => void) {
     element.removeEventListener("animationend", handleAnimationEnd);
     element.removeEventListener("animationcancel", handleAnimationCancel);
     if (timeoutId !== null) {
-      window.clearTimeout(timeoutId);
+      view.clearTimeout(timeoutId);
       timeoutId = null;
     }
   };
@@ -282,7 +287,7 @@ function watchAnimation(element: HTMLElement, done: () => void) {
         .catch(() => finish());
     }
   }
-  timeoutId = window.setTimeout(finish, fallbackDuration + 75);
+  timeoutId = view.setTimeout(finish, fallbackDuration + 75);
 
   return () => {
     cleanup();
@@ -290,11 +295,27 @@ function watchAnimation(element: HTMLElement, done: () => void) {
 }
 
 /**
- * Wire up the animate plugin once. Consumers call this during boot. The listener
- * intercepts close events, waits for animations, then replays the event.
+ * Ensure the animate lifecycle is active for a document. When triggers opt into
+ * `data-automagica11y-animate`, the listener delays the close transition until
+ * CSS animations finish and then replays the toggle so core patterns stay
+ * declarative.
  */
-export function registerAnimatePlugin() {
-  document.addEventListener(
+export function initAnimateLifecycle(targetDoc: Document) {
+  if (observedDocuments.has(targetDoc)) return;
+  observedDocuments.add(targetDoc);
+
+  const view =
+    targetDoc.defaultView ?? (typeof window !== "undefined" ? window : undefined);
+  if (!view) return;
+
+  const requestFrame = typeof view.requestAnimationFrame === "function"
+    ? view.requestAnimationFrame.bind(view)
+    : ((callback: FrameRequestCallback) => view.setTimeout(() => callback(Date.now()), 16));
+  const cancelFrame = typeof view.cancelAnimationFrame === "function"
+    ? view.cancelAnimationFrame.bind(view)
+    : ((handle: number) => view.clearTimeout(handle));
+
+  targetDoc.addEventListener(
     "automagica11y:toggle",
     (event) => {
       if (!(event instanceof CustomEvent)) return;
@@ -322,7 +343,7 @@ export function registerAnimatePlugin() {
         // already defaulted
       } else {
         // Treat as selector; resolve relative to the document
-        const resolved = document.querySelector<HTMLElement>(attr);
+        const resolved = targetDoc.querySelector<HTMLElement>(attr);
         if (resolved) {
           watched = resolved;
           // We still apply open/close classes to the target by default, unless
@@ -404,7 +425,7 @@ export function registerAnimatePlugin() {
         if (finalized) return;
         finalized = true;
         if (rafId !== null) {
-          window.cancelAnimationFrame(rafId);
+          cancelFrame(rafId);
           rafId = null;
         }
         if (cancelWatch) cancelWatch();
@@ -452,9 +473,9 @@ export function registerAnimatePlugin() {
           return;
         }
         // Double-rAF to ensure closing classes are applied and a paint occurs before we start listening.
-        rafId = window.requestAnimationFrame(() => {
+        rafId = requestFrame(() => {
           rafId = null;
-          const watcherCleanup = watchAnimation(watched, finalizeClose);
+          const watcherCleanup = watchAnimation(watched, finalizeClose, view);
           cancelWatch = () => {
             watcherCleanup();
             cancelWatch = null;
@@ -463,7 +484,7 @@ export function registerAnimatePlugin() {
       };
 
       // Delay watcher hookup one frame so the closing classes take effect visually.
-      rafId = window.requestAnimationFrame(startWatch);
+      rafId = requestFrame(startWatch);
 
       pending.set(target, {
         trigger,
@@ -472,7 +493,7 @@ export function registerAnimatePlugin() {
         timeout: null,
         cleanup: () => {
           if (rafId !== null) {
-            window.cancelAnimationFrame(rafId);
+            cancelFrame(rafId);
             rafId = null;
           }
           cancelWatch?.();
@@ -484,3 +505,4 @@ export function registerAnimatePlugin() {
     { capture: true }
   );
 }
+

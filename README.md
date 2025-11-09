@@ -380,12 +380,6 @@ registerAnnouncePlugin();
 
 Delay the “close” side of any toggle until the target (or trigger) finishes its CSS animation. Great for fade-outs or sliding panels where you want the animation to complete before `hidden` flips.
 
-```ts
-import { registerAnimatePlugin } from "automagica11y";
-
-registerAnimatePlugin();
-```
-
 ```html
 <button
   data-automagica11y-toggle="#drawer"
@@ -404,6 +398,7 @@ Behavior:
 - Adds the `.automagica11y-animating` class (or your custom close classes) while the close animation runs so you can transition styles declaratively.
 - Re-opening mid-close cancels the pending wait and removes temporary classes automatically.
 - Works with trigger-side animations as well (`data-automagica11y-animate="trigger"`). See [`examples/animate.html`](./examples/animate.html) for full transition + keyframe demos driven purely by data attributes.
+- No manual registration needed—animate installs itself alongside the core toggle lifecycle. If you need to target a specific document manually, call `initAnimateLifecycle(yourDocument)` directly.
 
 ---
 

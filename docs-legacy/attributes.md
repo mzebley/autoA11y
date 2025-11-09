@@ -89,7 +89,7 @@ data-automagica11y-[element]-[affordance]-[action]
 | `data-automagica11y-focus-map` | Semicolon-separated list or JSON array of selectors defining the tab sequence. |
 | `data-automagica11y-focus-map-scope` | `"self"` to scope selectors to the current element, a CSS selector (e.g., `#sidebar`) to target a specific container, or omit to use the entire document. |
 | `data-automagica11y-focus-map-anchor` | CSS selector that determines where the remapped elements sit in the natural tab order (defaults to the scope container). |
-| `data-automagica11y-animate` | `trigger` or `target`. Delays hiding until the specified element’s CSS transition/animation finishes. |
+| `data-automagica11y-animate` | `trigger`, `target`, or selector. Built-in animate lifecycle delays hiding until the specified element’s CSS transition/animation finishes. |
 
 ---
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-const setupPlugin = async () => {
+const setupAnimate = async () => {
   const originalMatchMedia = globalThis.matchMedia;
   vi.stubGlobal("matchMedia", () => ({ matches: false, addEventListener: () => {}, removeEventListener: () => {} }));
 
@@ -18,8 +18,8 @@ const setupPlugin = async () => {
       }) as CSSStyleDeclaration
   );
 
-  const mod = await import("../../src/plugins/animate/animate");
-  mod.registerAnimatePlugin();
+  const mod = await import("../src/core/animate");
+  mod.initAnimateLifecycle(document);
 
   return () => {
     vi.stubGlobal("matchMedia", originalMatchMedia);
@@ -27,7 +27,7 @@ const setupPlugin = async () => {
   };
 };
 
-describe("animate plugin", () => {
+describe("animate lifecycle", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.useFakeTimers();
@@ -35,7 +35,7 @@ describe("animate plugin", () => {
   });
 
   it("delays closing until transition ends", async () => {
-    const restore = await setupPlugin();
+    const restore = await setupAnimate();
 
     document.body.innerHTML = `
       <button id="trigger" data-automagica11y-animate="target"></button>
@@ -55,7 +55,7 @@ describe("animate plugin", () => {
       })
     );
 
-    // Allow the plugin's requestAnimationFrame to run so it attaches listeners.
+    // Allow the lifecycle's requestAnimationFrame to run so it attaches listeners.
     vi.runOnlyPendingTimers();
 
     expect(toggleSpy).toHaveBeenCalledTimes(0);
@@ -69,7 +69,7 @@ describe("animate plugin", () => {
     restore();
   });
   it("hides the target after transition end", async () => {
-    const restore = await setupPlugin();
+    const restore = await setupAnimate();
 
     document.body.innerHTML = `
       <button id="t" data-automagica11y-animate="target"></button>
@@ -97,7 +97,7 @@ describe("animate plugin", () => {
   });
 
   it("uses computed fallback timing when no events fire", async () => {
-    const restore = await setupPlugin();
+    const restore = await setupAnimate();
 
     document.body.innerHTML = `
       <button id="t" data-automagica11y-animate="target"></button>
@@ -110,7 +110,7 @@ describe("animate plugin", () => {
       detail: { expanded: false, trigger, target: panel }, bubbles: true
     }));
 
-    // Arm watchers (plugin uses double rAF before starting the fallback)
+    // Arm watchers (animate uses double rAF before starting the fallback)
     vi.runOnlyPendingTimers();
     vi.runOnlyPendingTimers();
     // Advance beyond the stubbed 100ms duration (plus padding)
@@ -122,7 +122,7 @@ describe("animate plugin", () => {
 
   it("short-circuits when prefers-reduced-motion is on", async () => {
     const original = globalThis.matchMedia;
-    const restore = await setupPlugin();
+    const restore = await setupAnimate();
     vi.stubGlobal("matchMedia", () => ({ matches: true, addEventListener() {}, removeEventListener() {} }));
 
     document.body.innerHTML = `
@@ -147,7 +147,7 @@ describe("animate plugin", () => {
   });
 
   it("waits on getAnimations().finished when available", async () => {
-    const restore = await setupPlugin();
+    const restore = await setupAnimate();
 
     document.body.innerHTML = `
       <button id="t" data-automagica11y-animate="target"></button>
@@ -177,7 +177,7 @@ describe("animate plugin", () => {
   });
 
   it("can watch a specified element via selector", async () => {
-    const restore = await setupPlugin();
+    const restore = await setupAnimate();
 
     document.body.innerHTML = `
       <button id="t" data-automagica11y-animate=".watched"></button>
@@ -200,7 +200,7 @@ describe("animate plugin", () => {
   });
 
   it("cancels pending close when re-open happens mid-flight", async () => {
-    const restore = await setupPlugin();
+    const restore = await setupAnimate();
 
     document.body.innerHTML = `
       <button id="t" data-automagica11y-animate="target"></button>
@@ -229,7 +229,7 @@ describe("animate plugin", () => {
   });
 
   it("emits animation-done with expected detail", async () => {
-    const restore = await setupPlugin();
+    const restore = await setupAnimate();
 
     document.body.innerHTML = `
       <button id="t" data-automagica11y-animate="target"></button>
@@ -260,7 +260,7 @@ describe("animate plugin", () => {
   });
 
   it("treats zero durations as instant even if events fire", async () => {
-    const restore = await setupPlugin();
+    const restore = await setupAnimate();
 
     const prior = globalThis.getComputedStyle;
     vi.stubGlobal(

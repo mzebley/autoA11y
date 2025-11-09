@@ -22,10 +22,10 @@ export const toggleAttributes = [
   },
   {
     attribute: 'data-automagica11y-animate',
-    type: 'boolean',
-    allowedValues: '`true`, `false`',
-    defaultValue: '`false`',
-    description: 'Opt into the animate plugin to wait for CSS transitions when closing.'
+    type: '`target` | `trigger` | Selector',
+    allowedValues: '`target`, `trigger`, or any CSS selector',
+    defaultValue: '`target`',
+    description: 'Opt into the built-in animate lifecycle so close transitions wait for CSS to finish.'
   }
 ];
 
