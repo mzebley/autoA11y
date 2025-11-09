@@ -92,8 +92,22 @@ const toMilliseconds = (value: CSSNumberish | null | undefined) => {
 };
 
 /** Determine the longest transition/animation duration applied to the element */
-function getDuration(el: HTMLElement) {
-  const style = getComputedStyle(el);
+function getStyleForElement(
+  el: HTMLElement,
+  view: Window & typeof globalThis
+) {
+  if (typeof view.getComputedStyle === "function") {
+    return view.getComputedStyle.call(view, el);
+  }
+  if (typeof getComputedStyle === "function") {
+    return getComputedStyle(el);
+  }
+  return null;
+}
+
+function getDuration(el: HTMLElement, view: Window & typeof globalThis) {
+  const style = getStyleForElement(el, view);
+  if (!style) return 0;
   const toMs = (token: string) => {
     if (token === "") return 0;
     const value = parseFloat(token);
@@ -272,7 +286,7 @@ function watchAnimation(
   element.addEventListener("animationend", handleAnimationEnd);
   element.addEventListener("animationcancel", handleAnimationCancel);
 
-  let fallbackDuration = getDuration(element);
+  let fallbackDuration = getDuration(element, view);
   if (typeof element.getAnimations === "function") {
     const animations = element.getAnimations({ subtree: false });
     if (animations.length > 0) {
@@ -467,8 +481,13 @@ export function initAnimateLifecycle(targetDoc: Document) {
 
       const startWatch = () => {
         rafId = null;
-        const style = getComputedStyle(watched);
-        if (prefersReducedMotion() || style.transitionProperty === "none" || getDuration(watched) === 0) {
+        const style = getStyleForElement(watched, view);
+        if (
+          !style ||
+          prefersReducedMotion() ||
+          style.transitionProperty === "none" ||
+          getDuration(watched, view) === 0
+        ) {
           finalizeClose();
           return;
         }
