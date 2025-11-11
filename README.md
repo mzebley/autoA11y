@@ -1,8 +1,8 @@
 # automagicA11y
 
-Version: 0.3 (concept phase)
+Version: 0.4 (concept phase)
 
-_Tagline: Drop an attribute. Get the ARIA._
+_Accessibility that writes itself._
 
 ---
 
@@ -11,6 +11,12 @@ _Tagline: Drop an attribute. Get the ARIA._
 automagicA11y is a lightweight, framework-agnostic accessibility utility that automates ARIA attributes, accessibility states, and related classes for common interactive components such as toggles, tooltips, dialogs, and menus.
 
 Built for simplicity and scalability, it uses a consistent declarative syntax via `data-automagica11y-*` attributes to handle open or closed states, ARIA bindings, and accessibility affordances automatically.
+
+### Key capabilities
+
+- **Drop-in attributes:** Use semantic HTML and `data-automagica11y-*` hooks. The runtime reflects ARIA attributes and stateful classes without bespoke scripts.
+- **Context-aware patterns:** Toggle dialogs, popovers, tooltips, and more with a single attribute. Presets bundle roles, keyboard bindings, and focus management for you.
+- **Progressive enhancement first:** No-JS fallbacks stay semantic while enhancements respect reduced motion, restore focus, and keep the DOM tidy.
 
 ---
 
@@ -21,6 +27,72 @@ Built for simplicity and scalability, it uses a consistent declarative syntax vi
   1. `npm run build` (ensures the docs import the latest local bundle).
   2. `npm run docs:dev`
   3. Open the dev server URL printed in the terminal.
+
+## Angular integration
+
+Angular 16+ apps can import the ESM build directly in component code. Guard invocations with
+`isPlatformBrowser` so SSR renders stay inert, then hydrate after Angular paints the view and whenever
+the router swaps pages.
+
+```ts
+// app.component.ts
+import { Component, Inject, PLATFORM_ID, AfterViewInit, OnInit } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { NavigationEnd, Router } from '@angular/router';
+import { initAllPatterns } from 'automagica11y';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html'
+})
+export class AppComponent implements AfterViewInit, OnInit {
+  constructor(@Inject(PLATFORM_ID) private platformId: object, private router: Router) {}
+
+  ngAfterViewInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      initAllPatterns();
+    }
+  }
+
+  ngOnInit(): void {
+    this.router.events.subscribe(event => {
+      if (isPlatformBrowser(this.platformId) && event instanceof NavigationEnd) {
+        initAllPatterns();
+      }
+    });
+  }
+}
+```
+
+Call `initAllPatterns` again whenever new markup with `data-automagica11y-*` attributes is rendered (for example,
+after lazy-loaded components resolve or dynamic content appears).
+
+Template example:
+
+```html
+<button data-automagica11y-toggle="#details">Details</button>
+<section id="details" hidden>Accessible disclosure target</section>
+```
+
+> ⚠️ Do not list `node_modules/automagica11y/dist/automagica11y.esm.js` in `angular.json` `scripts` – classic script tags
+> cannot parse `export` statements. Prefer module imports inside TypeScript instead.
+
+If you must use a global script (client-only builds, legacy code), reference the minified bundle and call the exposed global:
+
+```json
+// angular.json
+{
+  "scripts": ["node_modules/automagica11y/dist/automagica11y.min.js"]
+}
+```
+
+```ts
+declare const automagicA11y: typeof import('automagica11y/browser').default;
+
+automagicA11y.initAllPatterns();
+```
+
+Only run the global variant in the browser; the IIFE bundle is not SSR-compatible.
 
 ## Examples
 
